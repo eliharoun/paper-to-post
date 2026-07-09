@@ -1,0 +1,15 @@
+{
+  "source": "arxiv",
+  "source_id": "2406.00001",
+  "arxiv_id": "2406.00001",
+  "doi": null,
+  "title": "A Simple Method for Better Language Models",
+  "abstract": "We present a simple approach that improves language model training. On standard benchmarks it yields a 3 point average gain. We evaluate on three datasets and report consistent improvements, with a sufficiently long abstract for grounding checks.",
+  "authors": ["Ada Lovelace", "Alan Turing"],
+  "url": "https://arxiv.org/abs/2406.00001",
+  "pdf_url": "https://arxiv.org/pdf/2406.00001",
+  "published_date": "2026-06-28",
+  "is_preprint": true,
+  "is_open_access": true,
+  "topic_id": "swe_ml_ai"
+}

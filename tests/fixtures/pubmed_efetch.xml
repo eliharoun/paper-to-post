@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<PubmedArticleSet>
+  <PubmedArticle>
+    <MedlineCitation>
+      <PMID>40000001</PMID>
+      <Article>
+        <ArticleTitle>Genomic Markers Predict Cancer Outcomes</ArticleTitle>
+        <Abstract>
+          <AbstractText Label="BACKGROUND">Cancer genomics is advancing.</AbstractText>
+          <AbstractText Label="RESULTS">We identify markers correlated with survival in a large cohort.</AbstractText>
+        </Abstract>
+        <AuthorList>
+          <Author><LastName>Franklin</LastName><ForeName>Rosalind</ForeName></Author>
+          <Author><LastName>Venter</LastName><ForeName>Craig</ForeName></Author>
+        </AuthorList>
+        <Journal><Title>Nature Genetics</Title>
+          <JournalIssue><PubDate><Year>2026</Year><Month>Jun</Month><Day>29</Day></PubDate></JournalIssue>
+        </Journal>
+      </Article>
+    </MedlineCitation>
+    <PubmedData>
+      <ArticleIdList>
+        <ArticleId IdType="pubmed">40000001</ArticleId>
+        <ArticleId IdType="doi">10.1038/ng.2026.1</ArticleId>
+      </ArticleIdList>
+    </PubmedData>
+  </PubmedArticle>
+</PubmedArticleSet>

@@ -1,0 +1,25 @@
+{
+  "messages": [{"status": "ok", "count": 2}],
+  "collection": [
+    {
+      "doi": "10.1101/2026.06.28.111111",
+      "title": "CRISPR Screen Reveals Cancer Vulnerabilities",
+      "authors": "Franklin, R.; Doudna, J.",
+      "date": "2026-06-28",
+      "category": "cancer biology",
+      "abstract": "A genome-wide CRISPR screen identifies dependencies in tumor cells, described in a sufficiently long abstract for downstream filtering.",
+      "published": "NA",
+      "server": "biorxiv"
+    },
+    {
+      "doi": "10.1101/2026.06.29.222222",
+      "title": "A Short Preprint",
+      "authors": "Singh, A.",
+      "date": "2026-06-29",
+      "category": "genomics",
+      "abstract": "Too short.",
+      "published": "10.1038/s41586-026-00000-0",
+      "server": "biorxiv"
+    }
+  ]
+}

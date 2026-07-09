@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <entry>
+    <id>http://arxiv.org/abs/2406.00001v2</id>
+    <updated>2026-06-30T12:00:00Z</updated>
+    <published>2026-06-28T09:00:00Z</published>
+    <title>A Simple Method for Better Language Models</title>
+    <summary>We present a simple approach that improves language model training.
+    The method is evaluated on standard benchmarks and shows consistent gains.
+    This is a longer abstract to clear the minimum length used later in filtering.</summary>
+    <author><name>Ada Lovelace</name></author>
+    <author><name>Alan Turing</name></author>
+    <link href="http://arxiv.org/abs/2406.00001v2" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/2406.00001v2" rel="related" type="application/pdf"/>
+    <category term="cs.CL" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cs.AI" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2406.00002v1</id>
+    <updated>2026-06-29T12:00:00Z</updated>
+    <published>2026-06-29T12:00:00Z</published>
+    <title>Scaling Laws Revisited</title>
+    <summary>A short note.</summary>
+    <author><name>Grace Hopper</name></author>
+    <link href="http://arxiv.org/abs/2406.00002v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/2406.00002v1" rel="related" type="application/pdf"/>
+    <category term="cs.LG" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+</feed>

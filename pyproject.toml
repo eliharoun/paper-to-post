@@ -1,0 +1,69 @@
+[project]
+name = "paper-to-post"
+version = "0.1.0"
+description = "Turn recent research papers into ready-to-publish social posts (Instagram, LinkedIn, newsletter), driven by a Claude Code skill"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Elias Haroun" }]
+keywords = ["research", "arxiv", "science-communication", "instagram", "linkedin", "newsletter", "claude-code"]
+dependencies = [
+    "pydantic>=2.7",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0",
+    "httpx>=0.27",
+    "tenacity>=8.3",
+    "feedparser>=6.0",
+    "jinja2>=3.1",
+    "playwright>=1.40",
+    "pymupdf>=1.24",
+    "pillow>=10.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2",
+    "ruff>=0.5",
+]
+
+[project.scripts]
+research-fetch-arxiv = "scripts.fetch_arxiv:main"
+research-fetch-s2 = "scripts.fetch_semantic_scholar:main"
+research-fetch-pubmed = "scripts.fetch_pubmed:main"
+research-fetch-biorxiv = "scripts.fetch_biorxiv:main"
+research-fetch-openalex = "scripts.fetch_openalex:main"
+research-fetch-labs = "scripts.fetch_labs:main"
+research-fetch-crossref = "scripts.fetch_crossref:main"
+research-gather = "scripts.gather:main"
+research-dedupe = "scripts.normalize_dedupe:main"
+research-filter = "scripts.filter_prescore:main"
+research-paper-text = "scripts.paper_text:main"
+research-validate = "scripts.validate_post:main"
+research-screenshot = "scripts.screenshot_page1:main"
+research-render = "scripts.render_cards:main"
+research-bundle = "scripts.assemble_bundle:main"
+research-notify = "scripts.notify_telegram:main"
+research-newsletter = "scripts.newsletter:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["scripts*", "templates*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["browser: tests that launch headless Chromium (require playwright install chromium)"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+# SVG path/coordinate data legitimately exceeds the line length
+"templates/motifs.py" = ["E501"]

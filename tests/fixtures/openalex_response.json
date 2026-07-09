@@ -1,0 +1,22 @@
+{
+  "results": [
+    {
+      "id": "https://openalex.org/W123456789",
+      "doi": "https://doi.org/10.1234/openalex.1",
+      "title": "Deep Learning for Protein Folding",
+      "publication_date": "2026-06-30",
+      "abstract_inverted_index": {"Deep": [0], "learning": [1], "predicts": [2], "structure": [3]},
+      "authorships": [
+        {"author": {"display_name": "Ada Lovelace"}},
+        {"author": {"display_name": "Alan Turing"}}
+      ],
+      "primary_location": {
+        "landing_page_url": "https://example.org/paper1",
+        "pdf_url": "https://example.org/paper1.pdf",
+        "source": {"display_name": "Journal of ML"}
+      },
+      "open_access": {"is_oa": true},
+      "cited_by_count": 5
+    }
+  ]
+}

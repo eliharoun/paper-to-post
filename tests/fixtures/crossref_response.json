@@ -1,0 +1,19 @@
+{
+  "message": {
+    "items": [
+      {
+        "DOI": "10.1234/crossref.1",
+        "title": ["Transformers for Genomics"],
+        "abstract": "<jats:p>We apply transformers to genomic sequences with strong results.</jats:p>",
+        "author": [
+          {"given": "Ada", "family": "Lovelace"},
+          {"given": "Rosalind", "family": "Franklin"}
+        ],
+        "container-title": ["Bioinformatics"],
+        "published": {"date-parts": [[2026, 6, 30]]},
+        "URL": "https://doi.org/10.1234/crossref.1",
+        "is-referenced-by-count": 2
+      }
+    ]
+  }
+}

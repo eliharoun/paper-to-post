@@ -1,0 +1,35 @@
+brand:
+  account_name: "Daily CS Bits"
+  footer_text: "Source linked in caption"
+  canvas_width: 1080
+  canvas_height: 1350
+  render_scale: 2
+  margin: 90
+  max_cards: 7
+  min_cards: 5
+  jpeg_quality: 92
+  # Front-card backdrop. One name, or a list to rotate across posts (by date).
+  # Options: neural circuit waveform orbits hexgrid particles topo grid molecule helix | none
+  motif: ["circuit", "neural", "waveform", "grid"]
+  fonts:
+    heading: "Inter"
+    body: "Inter"
+  type_scale:
+    title_px: 64
+    body_px: 42
+    footer_px: 28
+  palette:
+    background: "#0B1220"
+    surface: "#1E293B"
+    text_primary: "#F8FAFC"
+    text_muted: "#94A3B8"
+    accent: "#38BDF8"
+    card_type_colors:
+      hook: "#38BDF8"
+      finding: "#34D399"
+      method: "#A78BFA"
+      context: "#FBBF24"
+      limitation: "#F87171"
+      source: "#94A3B8"
+      next: "#38BDF8"
+  logo_path: ""

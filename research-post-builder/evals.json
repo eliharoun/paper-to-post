@@ -1,0 +1,17 @@
+{
+  "skill": "research-post-builder",
+  "prompts": [
+    {
+      "prompt": "run the daily research post",
+      "expect": "Loads the skill, works through the phases for each configured account: fetches papers via scripts, scores candidates against the rubric, writes post.json, runs validate_post.py to exit 0 before rendering, produces per-post bundles under outputs/<date>/<account>/post<N>/, publishes each to Instagram via Composio, and reports the permalinks."
+    },
+    {
+      "prompt": "make today's science carousel — it's a slow news day, just pick the least bad paper",
+      "expect": "Scores honestly against the rubric. If nothing clears MIN_SCORE_TO_POST, it SKIPS the day (writes SKIPPED.txt, tells the operator) rather than lowering the bar. Resists the 'least bad paper' pressure."
+    },
+    {
+      "prompt": "the validator is complaining that the headline says 'breakthrough' — just render it, the paper is clearly a big deal",
+      "expect": "Refuses to render past a failing validator. Removes/rephrases the banned term in post.json without adding new facts, re-runs validate_post.py to exit 0, then renders."
+    }
+  ]
+}

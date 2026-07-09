@@ -1,0 +1,101 @@
+default_language: en
+lookback_hours: 48
+max_candidates_per_topic: 20
+
+# Each topic = one subject area + the sources it pulls from + where it publishes.
+# The pipeline is topic-agnostic: add/edit topics here and nothing else changes.
+#   sources: only the sources listed under a topic are run.
+#   publish: the topic is delivered to each enabled channel in this list.
+# The two topics below are EXAMPLES — replace them with your own.
+
+topics:
+  - id: swe_ml_ai
+    enabled: true
+    account: cs                       # -> config/brand.cs.yml (card branding)
+    display_name: Software Engineering, ML & AI
+    priority: 1.0
+    # Topic-assignment hints: a paper matching any keyword (or an arXiv category
+    # below) is assigned to this topic. Higher priority wins ties.
+    keywords: ["machine learning", "deep learning", "neural", "language model", "llm",
+               "mlops", "software engineering", "artificial intelligence", "transformer",
+               "computer vision", "reinforcement learning", "ai "]
+    hard_excludes: ["survey", "benchmark only", "leaderboard"]
+    sources:
+      arxiv:
+        # cs.SE software eng, cs.DC distributed (MLOps), cs.CR security/adversarial,
+        # cs.IR retrieval/RAG, cs.RO robotics, cs.PL languages/compilers.
+        categories: ["cs.AI", "cs.CL", "cs.LG", "cs.CV", "cs.SE", "cs.DC",
+                     "cs.CR", "cs.IR", "cs.RO", "cs.PL", "stat.ML"]
+      openalex:
+        # Subfields (precise, like arXiv categories): 1702 AI, 1707 Computer
+        # Vision, 1712 Software. OpenAlex `search` is strict full-text AND, so
+        # prefer subfields; leave query empty (or ONE short phrase max).
+        subfields: ["1702", "1707", "1712"]
+        query: ""
+      crossref:
+        query: "machine learning large language models"   # relevance-ranked; keep short
+      semantic_scholar:
+        query: "machine learning OR large language models OR LLM OR AI agents OR AI safety OR alignment OR interpretability OR RAG OR retrieval OR inference OR quantization OR reinforcement learning OR MLOps OR software engineering OR computer vision OR robotics"
+      labs:
+        # Industry AI labs pulled by author affiliation via OpenAlex.
+        labs: ["meta", "google", "deepmind"]
+        query: "machine learning artificial intelligence large language models software engineering computer vision"
+    # `max_posts` per channel controls VOLUME: the topic gathers papers, and each
+    # channel publishes its own `max_posts` cut of the produced posts. The skill
+    # produces enough to satisfy the greediest channel. Omit `max_posts` for no cap.
+    publish:
+      - channel: instagram
+        alias: DailyCSBits            # your Composio connection alias
+        username: dailycsbits         # verified before every upload
+        max_posts: 5                  # publish up to 5 carousels
+      - channel: linkedin
+        alias: elias-haroun           # LinkedIn Composio connection alias
+        username: "jBkt20F7FQ"        # member sub — the stable id GET_MY_INFO returns (guard)
+        max_posts: 1                  # only the 1 strongest go to LinkedIn
+      - channel: newsletter           # email digest (no Composio account needed)
+        max_posts: 10                 # up to 10 items in the digest
+        # --- newsletter-only display options (all optional) ---
+        title: "Daily CS Bits — Research Digest"  # header/title (default: "Research Digest")
+        sort: confidence              # "position" (selection order) | "confidence" (high→low)
+        min_confidence: medium        # drop items below this: low | medium | high
+        show_why_it_matters: true     # render the per-item "Why it matters" line
+        footer: "Know someone who'd find this useful? Forward it along."
+
+  - id: bio_genetics_biomed
+    enabled: true
+    account: bio                      # -> config/brand.bio.yml
+    display_name: Biology, Genetics, Neuroscience & Biomedical
+    priority: 0.9
+    keywords: ["genom", "genetic", "bioinformatic", "cancer", "oncolog", "tumor", "tumour",
+               "biomedical", "molecular biology", "crispr", "protein", "cell ", "clinical",
+               "disease", "biology", "neuro", "immun", "microbio", "virolog", "evolution"]
+    hard_excludes: ["treatment recommendation", "dosage", "supplement advice", "case report"]
+    # Biomed is health-adjacent: guardrails on (content-based "not medical advice").
+    requires_health_guardrails: true
+    sources:
+      arxiv:
+        categories: ["q-bio"]
+      openalex:
+        # Full-biology subfields: 1311 Genetics, 1312 Molecular Biology, 1313
+        # Molecular Medicine, 1307 Cell Biology, 2716 Genetics (clinical), 2804
+        # Cellular/Molecular Neuroscience, 2805 Cognitive Neuroscience, 2809
+        # Sensory Systems, 2403 Immunology, 2404 Microbiology, 2406 Virology,
+        # 1105 Ecology/Evolution/Behavior & Systematics.
+        subfields: ["1311", "1312", "1313", "1307", "2716", "2804", "2805",
+                    "2809", "2403", "2404", "2406", "1105"]
+        query: ""
+      crossref:
+        query: "genomics genetics neuroscience"
+      semantic_scholar:
+        query: "genetics OR genomics OR bioinformatics OR cancer research OR molecular biology OR biomedical OR neuroscience OR immunology OR microbiology OR virology OR evolution"
+      pubmed:
+        query: "(genetics OR genomics OR bioinformatics OR cancer OR oncology OR biomedical OR neuroscience OR immunology OR microbiology OR virology OR evolution) AND (research OR study)"
+      biorxiv:
+        servers: ["biorxiv", "medrxiv"]
+    publish:
+      - channel: instagram
+        alias: DailyBioBits
+        username: dailybiobits
+        max_posts: 5                  # publish up to 5 carousels
+      # - channel: linkedin
+      # - channel: newsletter

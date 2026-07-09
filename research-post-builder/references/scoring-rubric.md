@@ -1,0 +1,42 @@
+# Newsworthiness Scoring Rubric
+
+Score each candidate 0–100 using **only** the provided title, abstract, and metadata. Do not use outside knowledge about the paper, authors, or field. If the abstract doesn't say it, it doesn't count.
+
+## The scroll test (apply first)
+
+Before scoring, ask: **would a science-literate person stop scrolling for this?** The best picks have a hook a normal person feels in one line — a surprising result, a "wait, AI can't do that?", a health finding that touches everyday life, a number that defies intuition. A technically solid but inward-facing paper (yet another incremental benchmark, a narrow method tweak, a single-institution retrospective chart review) is a weak pick even if its rule-score is high. Rule-score reflects recency/citations/length; **you** judge whether it's genuinely interesting to a scrolling human. Favor the interesting-and-sound paper over the citation-heavy-but-dull one.
+
+## Dimensions (sum to 100)
+
+| Dimension | Points | What earns points |
+|---|---:|---|
+| Public relevance & pull | 25 | A scrolling person immediately gets why it's interesting or matters. High for surprising, counterintuitive, or life-relevant results; low for inward-facing incrementalism. |
+| Story quality / hook | 15 | There's a strong, honest one-line hook and a narrative arc. This is weighted up — a great hook is what stops the scroll. |
+| Novelty | 15 | A genuinely new finding, method, dataset, or perspective — not incremental. |
+| Evidence clarity | 15 | The abstract clearly states what was done and what was found, ideally with concrete numbers. |
+| Freshness | 10 | Recently published/updated within the lookback window. |
+| Visual carousel fit | 10 | Explainable in 5–7 substantive cards. |
+| Safety / low hype risk | 10 | Can be explained accurately without dangerous overclaiming. |
+
+## How to score
+
+1. For each dimension, assign points against the descriptions above. Be strict on evidence clarity and safety.
+2. Sum to a 0–100 total.
+3. Note any **red flags** (see below). A red flag caps the total or disqualifies.
+
+## Red flags (penalize hard or disqualify)
+
+- Health/medical treatment, dosage, or supplement claims when the health topic is disabled → disqualify.
+- Findings that only hold for animals/cells/simulations but are framed as human-relevant → cap safety at 0–3.
+- Purely a benchmark/leaderboard result with no general-reader angle → cap public relevance at 0–5.
+- Correlational result likely to be misread as causal → cap safety and note it.
+- Survey/review with no clear new takeaway → cap novelty at 0–5.
+- Abstract too vague to state what was actually found → cap evidence clarity at 0–3.
+
+## Threshold
+
+Post only if the top candidate scores **≥ MIN_SCORE_TO_POST** (default 70, from env). If nothing clears the bar, skip the day. Do not round up a 68 to a 70 to justify posting.
+
+## What to record
+
+For the selected paper, keep a one-line rationale and the dimension breakdown so the run is auditable (include it in `selected_paper.json` under a `score` field if convenient).

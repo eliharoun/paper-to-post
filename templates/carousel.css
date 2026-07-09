@@ -1,0 +1,42 @@
+@font-face {
+  font-family: "Inter";
+  font-weight: 400;
+  src: url("data:font/woff2;base64,__INTER_REGULAR_B64__") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-weight: 700;
+  src: url("data:font/woff2;base64,__INTER_BOLD_B64__") format("woff2");
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1080px; height: 1350px; }
+.card {
+  width: 1080px; height: 1350px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", sans-serif;
+  padding: 90px;
+  display: flex; flex-direction: column;
+  position: relative;
+}
+.label { font-size: 28px; color: var(--muted); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px; }
+.accent-rule { height: 8px; width: 120px; background: var(--accent);
+  margin: 28px 0 40px 0; border-radius: 4px; }
+.heading { font-size: 64px; font-weight: 700; line-height: 1.15; color: var(--accent); }
+.body { font-size: 42px; line-height: 1.4; margin-top: 40px; flex-grow: 1; }
+.footer { font-size: 28px; color: var(--muted); margin-top: auto; }
+
+/* --- front / title card --- */
+.title-card { position: relative; width: 1080px; height: 1350px;
+  background: var(--bg); color: var(--text); font-family: "Inter", sans-serif;
+  overflow: hidden; }
+.motif { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.scrim { position: absolute; inset: 0;
+  background: radial-gradient(120% 90% at 50% 50%, rgba(0,0,0,0.15), rgba(0,0,0,0.72)); }
+.title-content { position: absolute; inset: 0; padding: 110px 90px;
+  display: flex; flex-direction: column; justify-content: center; }
+.title-headline { font-size: 82px; font-weight: 700; line-height: 1.12;
+  color: var(--text); margin-top: 44px; }
+.title-source { font-size: 38px; font-weight: 400; color: var(--muted); }
+.title-content .accent-rule { margin: 48px 0 32px 0; width: 130px; }

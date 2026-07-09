@@ -1,0 +1,21 @@
+{
+  "results": [
+    {
+      "id": "https://openalex.org/W987654321",
+      "doi": "https://doi.org/10.1234/labs.1",
+      "title": "Scaling Laws for Multimodal Foundation Models",
+      "publication_date": "2026-07-05",
+      "abstract_inverted_index": {"We": [0], "study": [1], "scaling": [2], "laws": [3]},
+      "authorships": [
+        {"author": {"display_name": "Grace Hopper"}, "institutions": [{"display_name": "Meta (United States)"}]}
+      ],
+      "primary_location": {
+        "landing_page_url": "https://example.org/labs1",
+        "pdf_url": "https://example.org/labs1.pdf",
+        "source": {"display_name": "arXiv"}
+      },
+      "open_access": {"is_oa": true},
+      "cited_by_count": 2
+    }
+  ]
+}

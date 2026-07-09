@@ -1,0 +1,35 @@
+{
+  "total": 2,
+  "data": [
+    {
+      "paperId": "s2aaa111",
+      "title": "A Simple Method for Better Language Models",
+      "abstract": "We present a simple approach that improves language model training with consistent gains across benchmarks and a sufficiently long abstract body.",
+      "year": 2026,
+      "publicationDate": "2026-06-28",
+      "url": "https://www.semanticscholar.org/paper/s2aaa111",
+      "venue": "arXiv",
+      "citationCount": 3,
+      "isOpenAccess": true,
+      "openAccessPdf": {"url": "https://arxiv.org/pdf/2406.00001"},
+      "fieldsOfStudy": ["Computer Science"],
+      "externalIds": {"DOI": "10.1234/abc", "ArXiv": "2406.00001"},
+      "authors": [{"name": "Ada Lovelace"}, {"name": "Alan Turing"}]
+    },
+    {
+      "paperId": "s2bbb222",
+      "title": "Genomic Insights into Cancer",
+      "abstract": "A biomedical study of genomic markers with a long enough abstract to satisfy downstream filtering requirements in later phases of the pipeline.",
+      "year": 2026,
+      "publicationDate": "2026-06-30",
+      "url": "https://www.semanticscholar.org/paper/s2bbb222",
+      "venue": "Nature Genetics",
+      "citationCount": 0,
+      "isOpenAccess": false,
+      "openAccessPdf": null,
+      "fieldsOfStudy": ["Biology", "Medicine"],
+      "externalIds": {"DOI": "10.5555/xyz"},
+      "authors": [{"name": "Rosalind Franklin"}]
+    }
+  ]
+}

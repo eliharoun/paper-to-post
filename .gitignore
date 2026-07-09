@@ -1,0 +1,22 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+*.egg-info/
+.env
+data/
+outputs/
+.DS_Store
+# Local Claude Code state — ignore everything under .claude/ EXCEPT the tracked
+# skill symlink that lets the skill be discovered on clone.
+.claude/*
+!.claude/skills
+.claude/skills/*
+!.claude/skills/research-post-builder
+# Composio CLI scratch files left by `composio run`
+.composio-run-*
+scripts/.composio-run-*
+# Node (Composio CLI is invoked externally, not vendored)
+node_modules/
