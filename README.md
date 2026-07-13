@@ -50,12 +50,18 @@ differs.
 The scripts must be runnable from this repo (`make install`, venv active) regardless of
 which agent loads the skill — the skill calls the installed `research-*` commands.
 
-### Claude Code — already wired (nothing to do)
+### Claude Code — link it once
 
-This repo ships a tracked symlink at `.claude/skills/research-post-builder` →
-`../../research-post-builder`, so **cloning the repo and opening Claude Code here is
-enough** — the skill is discovered automatically. Verify with `/skills` (you should see
-`research-post-builder`), then trigger it: *"run the daily research posts"*.
+`.claude/` is gitignored (local state, never committed), so point Claude Code at the
+skill with a symlink. Do this once per clone:
+
+```bash
+mkdir -p .claude/skills
+ln -s ../../research-post-builder .claude/skills/research-post-builder
+```
+
+Then open Claude Code here and verify with `/skills` (you should see
+`research-post-builder`), and trigger it: *"run the daily research posts"*.
 
 - **Use it from anywhere** (not just this repo): install it as a personal skill —
   ```bash

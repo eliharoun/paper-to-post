@@ -9,12 +9,8 @@ venv/
 data/
 outputs/
 .DS_Store
-# Local Claude Code state — ignore everything under .claude/ EXCEPT the tracked
-# skill symlink that lets the skill be discovered on clone.
-.claude/*
-!.claude/skills
-.claude/skills/*
-!.claude/skills/research-post-builder
+# Local Claude Code state — never commit anything under .claude/
+.claude/
 # Composio CLI scratch files left by `composio run`
 .composio-run-*
 scripts/.composio-run-*
