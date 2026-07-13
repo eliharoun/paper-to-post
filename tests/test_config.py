@@ -19,7 +19,7 @@ def test_load_topics_enabled_only(config_dir):
     ids = [x.id for x in t.enabled_topics()]
     assert "swe_ml_ai" in ids
     assert "bio_genetics_biomed" in ids
-    assert t.lookback_hours == 48
+    assert t.lookback_hours == 96
 
 
 def test_biomed_topic_has_guardrails_and_biomed_sources(config_dir):
