@@ -76,6 +76,50 @@ Vary the questions per paper — don't mechanically reuse the same seven every t
 
 Aim for 5 content cards + title + source (≤7 total). The physical carousel is: title → content cards → [paper screenshot if available] → source. If a paper genuinely has no numbers (rare — a pure taxonomy or theory paper), the results card instead states the single most concrete outcome (e.g. "revalidated the name *Manis aurita* from genomic + morphological evidence").
 
+## Card-to-card momentum & density (make it swipeable, not just correct)
+
+The card *sequence* above is the skeleton; this is what makes people actually swipe to the
+end. The whole carousel is a **swipe machine** — each card must earn the next swipe, and the
+reader retains ~one idea per card. Six rules, all of which live *inside* the anti-hype
+guardrails (the honesty firewall below is non-negotiable).
+
+- **Write the spine sentence first, then break it into cards.** Before drafting cards, write
+  the whole post as *one* sentence — the finding, its mechanism, and its "so what." Its
+  natural joints are your cards. This forces **one clear idea per card** and guarantees the
+  deck builds instead of listing seven equal facts. Decide up front the **one takeaway** you
+  want lodged by tomorrow and the **one quotable number** that carries it — and give that
+  number its own card, leading the card, not buried third in a list.
+- **Escalate the questions — each heading is the question the previous card just raised.**
+  The question headings aren't a fixed checklist; they're a **curiosity ladder**. Card 2's
+  answer should make the reader ask exactly what card 3's heading poses ("…new" → "how?" →
+  "does it work?" → "so what for me?" → "should I believe it?"). When it's built right, the
+  reader swipes because *they* generated the next question.
+- **End most cards on a small open loop.** The last line is the highest-leverage spot on a
+  card: a resolved card gives the brain permission to leave. End on tension the next card
+  closes — a "but here's the catch", a setup whose payoff is next, a counterintuitive turn.
+  **Honesty firewall: hide the *how/why*, never the *whether*.** You may defer the mechanism
+  or the number across cards; you may never withhold, inflate, or fake the finding itself,
+  its magnitude, or its limits to manufacture suspense. Every loop you open must close
+  in-deck. The test: *would the paper's authors nod, or wince?*
+- **Card 2 must also work as a standalone hook.** Instagram re-serves a carousel starting
+  from card 2 to people who scrolled past card 1, so card 2 is a *second* thumbnail — it must
+  independently stop the scroll (a sharp finding or a "wait, really?"), not read as a bland
+  intro.
+- **Spread, don't stack — the strongest cards are the shortest.** Depth comes from the number
+  of cards, not the density per card. The 280-char body limit is a *ceiling, not a target*:
+  aim ~40 words / ~200 chars, one idea, and let the punchiest cards (the reveal, the quotable
+  number) be a single short line. Two ideas hiding behind an "and" = two cards. A card that
+  reads as a wall of text gets skipped no matter how correct it is.
+- **Anchor the unknown on the known, and pay off the hook.** Open a hard idea from something
+  the reader already has in memory ("a model's KV-cache is its short-term memory of the chat
+  so far — and it grows every token"), then reattach the real term. Reuse one **through-line
+  phrase** across cards so they cohere into a single memory, and on the "why it matters" card
+  **call back** to the hook's question/claim to close the loop the title opened.
+
+These are momentum rules, not new cards — apply them *within* the 7-card sequence. Do not add
+a "recap" card (it competes with the source/screenshot cards); land the portable takeaway
+inside the "why it matters" card instead.
+
 ## Per-card limits (validator-enforced)
 
 - Heading ≤ 70 chars.
