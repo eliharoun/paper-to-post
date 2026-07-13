@@ -115,6 +115,30 @@ def check_caption_link(post: GeneratedPost, paper: dict) -> list[str]:
     return []
 
 
+# "AI tell" punctuation. The em dash (U+2014), en dash (U+2013) and horizontal
+# bar (U+2015) rarely appear in text people actually type; their presence reads as
+# machine-generated. Ban them everywhere so writers use commas, colons, parentheses,
+# or separate sentences instead. Hyphen-minus (U+002D) for ranges/compounds is fine.
+_AI_TELL_DASHES = {"—": "em dash", "–": "en dash", "―": "horizontal bar"}
+
+
+def check_style(post: GeneratedPost) -> list[str]:
+    """Reject AI-tell punctuation (em/en dashes) in any card or the caption."""
+    errors: list[str] = []
+    fields: list[tuple[str, str]] = [("caption", post.caption)]
+    for c in post.carousel_cards:
+        fields.append((f"card {c.card_number} heading", c.heading))
+        fields.append((f"card {c.card_number} body", c.body))
+    for where, text in fields:
+        present = sorted({name for ch, name in _AI_TELL_DASHES.items() if ch in text})
+        if present:
+            errors.append(
+                f"style: {where} uses {', '.join(present)} — replace with a comma, "
+                "colon, parentheses, or two sentences (people don't type these)"
+            )
+    return errors
+
+
 def check_readability(post: GeneratedPost) -> list[str]:
     errors: list[str] = []
     for c in post.carousel_cards:
@@ -185,6 +209,7 @@ def validate_post(
     errors = list(schema_errors)
     errors += check_lengths(post, brand)
     errors += check_hype(post)
+    errors += check_style(post)
     errors += check_grounding(post, paper)
     errors += check_caption_link(post, paper)
     errors += check_readability(post)

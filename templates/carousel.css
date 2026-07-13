@@ -19,13 +19,13 @@ html, body { width: 1080px; height: 1350px; }
   display: flex; flex-direction: column;
   position: relative;
 }
-.label { font-size: 28px; color: var(--muted); font-weight: 700;
-  text-transform: uppercase; letter-spacing: 2px; }
-.accent-rule { height: 8px; width: 120px; background: var(--accent);
-  margin: 28px 0 40px 0; border-radius: 4px; }
-.heading { font-size: 64px; font-weight: 700; line-height: 1.15; color: var(--accent); }
-.body { font-size: 42px; line-height: 1.4; margin-top: 40px; flex-grow: 1; }
-.footer { font-size: 28px; color: var(--muted); margin-top: auto; }
+.label { font-size: var(--fs-label, 30px); color: var(--muted); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2.5px; }
+.accent-rule { height: 10px; width: 130px; background: var(--accent);
+  margin: 26px 0 38px 0; border-radius: 5px; }
+.heading { font-size: var(--fs-heading, 64px); font-weight: 700; line-height: 1.18; color: var(--accent); }
+.body { font-size: var(--fs-body, 50px); line-height: 1.5; margin-top: 44px; flex-grow: 1; }
+.footer { font-size: var(--fs-footer, 32px); color: var(--muted); margin-top: auto; }
 
 /* --- front / title card --- */
 .title-card { position: relative; width: 1080px; height: 1350px;
@@ -36,7 +36,7 @@ html, body { width: 1080px; height: 1350px; }
   background: radial-gradient(120% 90% at 50% 50%, rgba(0,0,0,0.15), rgba(0,0,0,0.72)); }
 .title-content { position: absolute; inset: 0; padding: 110px 90px;
   display: flex; flex-direction: column; justify-content: center; }
-.title-headline { font-size: 82px; font-weight: 700; line-height: 1.12;
+.title-headline { font-size: var(--fs-title, 84px); font-weight: 700; line-height: 1.12;
   color: var(--text); margin-top: 44px; }
-.title-source { font-size: 38px; font-weight: 400; color: var(--muted); }
+.title-source { font-size: var(--fs-title-source, 40px); font-weight: 400; color: var(--muted); }
 .title-content .accent-rule { margin: 48px 0 32px 0; width: 130px; }

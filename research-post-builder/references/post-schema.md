@@ -45,6 +45,7 @@ Write `run/post.json` to match this schema exactly. `validate_post.py` enforces 
 - Valid JSON, matches this schema, all required fields present.
 - Card count 5–7; per-card heading/body/footer length limits; caption ≤ 2200; hashtags ≤ 8.
 - No banned hype terms (see instagram-writing-guide) unless flagged as source-supported.
+- No em/en dashes (`—` / `–`) in any heading, body, or caption (they read as AI-generated) — use commas, colons, parentheses, or two sentences.
 - Grounding: `source_title`/`source_url` match the paper; no "peer-reviewed" claim on a preprint; claims must trace to the paper (full text or abstract).
 - **Caption contains the article link:** the paper's `source_url` must appear verbatim in the `caption` text. A caption without the link fails validation.
 - Readability: average sentence length ≤ 26 words per card (dense technical sentences are fine; academic run-ons are not).

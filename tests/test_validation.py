@@ -10,8 +10,12 @@ from scripts.lib.validation import (
     check_lengths,
     check_readability,
     check_schema,
+    check_style,
     validate_post,
 )
+
+EM_DASH = "—"
+EN_DASH = "–"
 
 FIX = Path(__file__).parent / "fixtures"
 BRAND = load_brand_for_account("cs")
@@ -79,6 +83,33 @@ def test_check_hype_flags_term_in_caption():
     bad = dict(GOOD_POST, caption=GOOD_POST["caption"] + " A total breakthrough!")
     _, post = check_schema(bad, BRAND)
     assert any("breakthrough" in e for e in check_hype(post))
+
+
+def test_check_style_passes_clean_post():
+    _, post = check_schema(GOOD_POST, BRAND)
+    assert check_style(post) == []
+
+
+def test_check_style_flags_em_dash_in_body():
+    bad = json.loads((FIX / "good_post.json").read_text())
+    bad["carousel_cards"][1]["body"] = f"It works {EM_DASH} but only sometimes."
+    _, post = check_schema(bad, BRAND)
+    errors = check_style(post)
+    assert any("em dash" in e for e in errors)
+
+
+def test_check_style_flags_en_dash_in_caption():
+    bad = dict(GOOD_POST, caption=GOOD_POST["caption"] + f" A range {EN_DASH} here.")
+    _, post = check_schema(bad, BRAND)
+    assert any("en dash" in e and "caption" in e for e in check_style(post))
+
+
+def test_check_style_allows_plain_hyphen():
+    # Hyphen-minus in compounds/ranges is fine — only em/en dashes are banned.
+    clean = json.loads((FIX / "good_post.json").read_text())
+    clean["carousel_cards"][1]["body"] = "A single-molecule, deep-lung result at 37%-70%."
+    _, post = check_schema(clean, BRAND)
+    assert check_style(post) == []
 
 
 def test_check_hype_word_boundary_no_false_positive():

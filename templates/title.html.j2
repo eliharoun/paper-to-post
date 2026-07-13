@@ -1,7 +1,7 @@
 <!doctype html>
 <html><head><meta charset="utf-8"><style>{{ css|safe }}</style></head>
 <body>
-  <div class="title-card" style="--bg:{{ bg }};--text:{{ text }};--muted:{{ muted }};--accent:{{ accent }};">
+  <div class="title-card" style="--bg:{{ bg }};--text:{{ text }};--muted:{{ muted }};--accent:{{ accent }};--fs-title:{{ fs_title }}px;--fs-title-source:{{ fs_title_source }}px;--fs-label:{{ fs_label }}px;">
     {% if motif_uri %}<div class="motif" style="background-image:url({{ motif_uri|safe }});"></div>
     <div class="scrim"></div>{% endif %}
     <div class="title-content">

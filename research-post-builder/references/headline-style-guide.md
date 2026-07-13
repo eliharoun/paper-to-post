@@ -192,6 +192,8 @@ rules and the validator):
 - **Title-card `heading` ≤ 70 characters** (validator-enforced). Aim for **4–10 words** so it
   reads as a thumbnail.
 - One idea; active voice; numerals not words ("7", not "seven"); no decoding-required puns.
+- **No em/en dashes** (`—` / `–`) in the headline or anywhere else — they read as AI-generated and
+  the validator rejects them. Use a colon for a two-part headline (`Subject: the twist`), or a comma.
 - The **caption's first line ≤ ~125 chars** is the hook before Instagram's "…more" fold — same
   craft applies, and it must still carry the honest finding (see writing-guide caption rules).
 - Keep the source/venue in the title-card `footer`, never a preprint label.

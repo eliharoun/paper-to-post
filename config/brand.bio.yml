@@ -14,15 +14,21 @@ brand:
   fonts:
     heading: "Inter"
     body: "Inter"
+  # Card font sizes for the 1080x1350 canvas (see templates/render.py). Tuned for
+  # phone legibility: comfortable body, 1.5 line-height; the densest 280-char body
+  # still fits the card height. Bump body_px/heading_px here to scale type globally.
   type_scale:
-    title_px: 64
-    body_px: 42
-    footer_px: 28
+    title_px: 84          # title-card headline
+    title_source_px: 40   # title-card source/venue line
+    heading_px: 64        # content-card question heading
+    body_px: 50           # content-card body copy
+    label_px: 30          # account eyebrow label
+    footer_px: 32         # content-card footer / source line
   palette:
     background: "#0C1A14"
     surface: "#14342B"
     text_primary: "#F0FDF4"
-    text_muted: "#94B8A8"
+    text_muted: "#AECFC0"
     accent: "#34D399"
     card_type_colors:
       hook: "#34D399"
@@ -30,6 +36,6 @@ brand:
       method: "#A78BFA"
       context: "#FBBF24"
       limitation: "#F87171"
-      source: "#94B8A8"
+      source: "#AECFC0"
       next: "#34D399"
   logo_path: ""

@@ -40,12 +40,20 @@ def _inlined_css() -> str:
 def _card_html(env: Environment, card: dict, brand: BrandConfig, *,
                motif_key: str | None = None) -> str:
     accent = brand.palette.card_type_colors.get(card["card_type"], brand.palette.accent)
+    # Font sizes are brand-tunable via `type_scale` in config/brand.<acct>.yml.
+    # Sizes below are calibrated for the 1080x1350 canvas per social-carousel
+    # legibility guidance (comfortable body ~48-50px, 1.5 body line-height); the
+    # densest 280-char body still clears the 1350px height with margin to spare.
+    ts = brand.type_scale
     common = dict(
         css=_inlined_css(),
         account_name=brand.account_name,
         heading=card["heading"], body=card.get("body", ""), footer=card.get("footer", ""),
         bg=brand.palette.background, text=brand.palette.text_primary,
         muted=brand.palette.text_muted, accent=accent,
+        fs_heading=ts.get("heading_px", 64), fs_body=ts.get("body_px", 50),
+        fs_label=ts.get("label_px", 30), fs_footer=ts.get("footer_px", 32),
+        fs_title=ts.get("title_px", 84), fs_title_source=ts.get("title_source_px", 40),
     )
     if card["card_type"] == "title":
         # front card: title + source over the account's concept motif

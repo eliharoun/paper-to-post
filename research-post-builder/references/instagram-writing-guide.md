@@ -39,6 +39,17 @@ Keep sentences readable — the validator caps average sentence length at ~26 wo
 
 Do not use these unless the source's own wording explicitly supports it (rare): `cure`, `proven`, `guaranteed`, `miracle`, `breakthrough`, `game-changing`, `doctors recommend`, `everyone should`, `eliminates risk`, `100%`, `no risk`. The validator will reject them.
 
+## Banned punctuation: no em/en dashes (an "AI tell")
+
+**Never use the em dash (`—`, U+2014), en dash (`–`, U+2013), or horizontal bar (`―`) in any heading, body, or caption.** Real people typing a caption almost never reach for these characters, so they read as machine-generated — and the validator now hard-rejects them. Use everyday punctuation instead:
+
+- **Parenthetical aside** → wrap it in **commas** or **parentheses**: not `806 genomes — the deep-lung cells — stayed mutated`, but `806 genomes (the deep-lung cells) stayed mutated` or `806 genomes, the deep-lung cells, stayed mutated`.
+- **A break or reversal** → use a **period** (two sentences) or a **comma**: not `it looks done — but files leak`, but `it looks done, but files leak.`
+- **A lead-in to a list or explanation** → use a **colon**: not `one relation — a precondition, a cleanup`, but `one relation: a precondition, a cleanup`.
+- Regular **hyphens** in compounds and ranges (`deep-lung`, `37%-70%`, `single-molecule`) are fine — those are hyphen-minus, not dashes.
+
+Write it the way you'd type it in a hurry: short sentences and commas beat a dramatic dash.
+
 ## Substance is the point — mine the full text, don't paraphrase the abstract
 
 The single biggest failure mode is a card that *frames* a finding without *delivering* it — "the results are impressive" instead of "detection rose from 37% to 70%." You have the full paper text (step 4). Use it. Every content card must carry **specific, checkable substance**:
