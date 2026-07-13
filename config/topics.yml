@@ -1,5 +1,5 @@
 default_language: en
-lookback_hours: 96
+lookback_hours: 48
 max_candidates_per_topic: 20
 
 # Each topic = one subject area + the sources it pulls from + where it publishes.
