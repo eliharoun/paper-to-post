@@ -196,15 +196,29 @@ def test_build_newsletter_none_when_filter_empties(tmp_path):
     assert build_newsletter(tmp_path, "T", "d", min_confidence="high") is None
 
 
-def test_main_reads_topic_config(tmp_path):
-    # --topic pulls newsletter options from config/topics.yml (swe_ml_ai: title,
-    # sort=confidence, min_confidence=medium, footer). CLI title omitted → config title.
-    from scripts.newsletter import main
+def test_main_reads_topic_config(tmp_path, monkeypatch):
+    # --topic pulls newsletter options (title, min_confidence, footer) from the
+    # topic's newsletter publish target. The shipped config is Instagram-only
+    # (newsletter commented out), so we inject a topic with a newsletter target to
+    # exercise the config-resolution code path independent of the channel lineup.
+    import scripts.newsletter as nl
+    from scripts.lib.config import PublishTarget, TopicConfig, TopicsConfig
+
+    topic = TopicConfig(
+        id="demo_topic", enabled=True, account="cs", display_name="Demo", priority=1.0,
+        publish=[PublishTarget(
+            channel="newsletter", max_posts=10, title="Daily CS Bits",
+            sort="confidence", min_confidence="medium",
+            footer="Know someone who'd find this useful? Forward it along.",
+        )],
+    )
+    monkeypatch.setattr(nl, "load_topics", lambda: TopicsConfig(topics=[topic]))
+
     for i, conf in enumerate(["low", "high"], 1):
         d = tmp_path / f"post{i}"
         d.mkdir()
         (d / "post.json").write_text(json.dumps(_mk(str(i), conf)))
-    rc = main(["--dir", str(tmp_path), "--topic", "swe_ml_ai", "--date", "d"])
+    rc = nl.main(["--dir", str(tmp_path), "--topic", "demo_topic", "--date", "d"])
     assert rc == 0
     md = (tmp_path / "newsletter.md").read_text()
     assert "Daily CS Bits" in md       # title from config

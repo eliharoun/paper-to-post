@@ -11,6 +11,17 @@ brand:
   # Front-card backdrop. One name, or a list to rotate across posts (by date).
   # Options: neural circuit waveform orbits hexgrid particles topo grid molecule helix | none
   motif: ["circuit", "neural", "waveform", "grid"]
+  hero_style:
+    enabled: true
+    # Default = cheaper flash tier. To upgrade quality, swap image_model to:
+    #   nano-banana-pro-preview     (top quality, ~pro pricing)
+    #   gemini-3-pro-image-preview
+    image_model: "gemini-3.1-flash-image-preview"
+    aspect_ratio: "4:5"
+    style: >
+      Premium editorial 3D render, dark studio void, single cyan (#38BDF8) accent,
+      cinematic volumetric lighting, sharp macro detail, sleek modern tech aesthetic,
+      no text, no words, no diagrams.
   fonts:
     heading: "Inter"
     body: "Inter"

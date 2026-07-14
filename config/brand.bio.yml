@@ -11,6 +11,17 @@ brand:
   # Front-card backdrop. One name, or a list to rotate across posts (by date).
   # Options: neural circuit waveform orbits hexgrid particles topo grid molecule helix | none
   motif: ["helix", "molecule", "orbits", "topo"]
+  hero_style:
+    enabled: true
+    # Default = cheaper flash tier. To upgrade quality, swap image_model to:
+    #   nano-banana-pro-preview     (top quality, ~pro pricing)
+    #   gemini-3-pro-image-preview
+    image_model: "gemini-3.1-flash-image-preview"
+    aspect_ratio: "4:5"
+    style: >
+      Premium editorial macro 3D render, dark microscopic void, luminous organic
+      forms, single mint-green (#34D399) bioluminescent accent, subsurface scattering,
+      shallow depth of field, no text, no words, no diagrams.
   fonts:
     heading: "Inter"
     body: "Inter"

@@ -72,3 +72,4 @@ class GeneratedPost(BaseModel):
     hashtags: list[str]
     alt_text: str
     confidence: Confidence
+    hero_image_prompt: str | None = None

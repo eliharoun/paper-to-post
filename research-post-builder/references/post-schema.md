@@ -1,6 +1,6 @@
 # Generated Post JSON Schema
 
-Write `run/post.json` to match this schema exactly. `validate_post.py` enforces it. All fields are required.
+Write `run/post.json` to match this schema exactly. `validate_post.py` enforces it. All fields are required except `hero_image_prompt` (optional).
 
 ```json
 {
@@ -28,7 +28,8 @@ Write `run/post.json` to match this schema exactly. `validate_post.py` enforces 
   "caption": "string (<=2200 chars)",
   "hashtags": ["string — aim for 3-5 specific tags; max 8 (Instagram's Rule of 5)"],
   "alt_text": "string",
-  "confidence": "low|medium|high"
+  "confidence": "low|medium|high",
+  "hero_image_prompt": "string (optional) — art-director prompt for the front-card hero image"
 }
 ```
 
@@ -36,9 +37,10 @@ Write `run/post.json` to match this schema exactly. `validate_post.py` enforces 
 
 - **`source_title` / `source_url`** must match the selected paper — the validator does a normalized-title and URL grounding check. Copy them from `selected_paper.json`, don't paraphrase.
 - **`is_preprint`** is **metadata only** — set it to match the paper, but **do not surface publication status in any caption or card**. It exists so the validator can reject a false "peer-reviewed" claim; it is not something to write about. Keep the caption and cards about the science, never about preprint/peer-review status.
-- **`carousel_cards`** count must be between `brand.min_cards` (5) and `brand.max_cards` (7), numbered sequentially from 1. **Card 1 must be `card_type: "title"`** (headline in `heading`, source line in `footer`, empty `body`) — it renders as the thumbnail over the branded backdrop. Content cards use question `heading`s (see instagram-writing-guide). Include a `source` card. The paper first-page screenshot is inserted automatically before the source card at render time — you do not author a screenshot card.
+- **`carousel_cards`** count must be between `brand.min_cards` (5) and `brand.max_cards` (7), numbered sequentially from 1. **Card 1 must be `card_type: "title"`** (headline in `heading`, source line in `footer`, empty `body`) — its `heading` is the front-card thumbnail headline. That `heading` is overlaid on the AI **hero image** when one is generated (see `hero-image-guide.md`), or on the branded **motif** backdrop as the fallback; either way the `heading` you write is the text that ships. Content cards use question `heading`s (see instagram-writing-guide). Include a `source` card. The paper first-page screenshot is inserted automatically before the source card at render time — you do not author a screenshot card.
 - **`limitations`** must be non-empty — state the *scientific* limits of the finding (sample size, cell line, simulation, scope, association-not-causation). Do **not** list "preprint / not peer reviewed" as a limitation; that's publication status, not a limit of the science.
 - **`confidence`** is your honest read of how well the source supports the framing.
+- **`hero_image_prompt`** (optional) is the art-director prompt for the front-card hero image, authored per `hero-image-guide.md` and the topic's `hero_style.style` (in `config/brand.<account>.yml`). `research-hero` renders it into `card_01.jpg`. If absent, or if hero generation fails, the front card falls back to the branded motif backdrop.
 
 ## Validation the script runs (so write to pass it the first time)
 

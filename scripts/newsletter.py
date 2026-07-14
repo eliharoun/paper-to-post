@@ -22,6 +22,8 @@ import json
 import sys
 from pathlib import Path
 
+from scripts.lib.config import load_topics
+
 _CONFIDENCE_RANK = {"low": 0, "medium": 1, "high": 2}
 
 
@@ -246,7 +248,6 @@ def build_newsletter(
 def _newsletter_config(topic_id: str):
     """Load the newsletter publish target (a config.PublishTarget) for a topic id,
     or None if the topic has no enabled newsletter channel / isn't found."""
-    from scripts.lib.config import load_topics
     topics = load_topics()
     match = [t for t in topics.topics if t.id == topic_id]
     if not match:

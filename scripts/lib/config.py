@@ -17,6 +17,16 @@ class Palette(BaseModel):
     card_type_colors: dict[str, str]
 
 
+class HeroStyle(BaseModel):
+    enabled: bool = True
+    # Default = cheaper flash tier. To upgrade quality, swap image_model to:
+    #   nano-banana-pro-preview     (top quality, ~pro pricing)
+    #   gemini-3-pro-image-preview
+    image_model: str = "gemini-3.1-flash-image-preview"
+    aspect_ratio: str = "4:5"
+    style: str = ""     # per-topic house style, folded into hero_image_prompt at write time
+
+
 class BrandConfig(BaseModel):
     account_name: str
     footer_text: str
@@ -32,6 +42,7 @@ class BrandConfig(BaseModel):
     type_scale: dict[str, int]
     palette: Palette
     logo_path: str = ""
+    hero_style: HeroStyle | None = None
 
     def resolve_motif(self, key: str | None = None) -> str:
         """Pick one motif. If `motif` is a list, rotate deterministically by `key`

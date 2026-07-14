@@ -35,7 +35,7 @@ Before scoring, ask: **would a science-literate person stop scrolling for this?*
 
 ## Threshold
 
-Post only if the top candidate scores **≥ MIN_SCORE_TO_POST** (default 70, from env). If nothing clears the bar, skip the day. Do not round up a 68 to a 70 to justify posting.
+Post only if the top candidate scores **≥ MIN_SCORE_TO_POST** (advisory `.env` knob, default 70 — you honor it by judgment; no script enforces it). If nothing clears the bar, skip the day. Do not round up a 68 to a 70 to justify posting.
 
 ## What to record
 

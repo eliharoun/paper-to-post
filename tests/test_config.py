@@ -51,8 +51,9 @@ def test_topic_publish_targets(config_dir):
     assert ig[0].alias == "DailyCSBits" and ig[0].username == "dailycsbits"
     # Volume is a per-channel decision via max_posts.
     assert ig[0].max_posts == 5
-    nl = cs.publish_targets("newsletter")
-    assert len(nl) == 1 and nl[0].max_posts == 10
+    # The shipped config is Instagram-only; newsletter/linkedin are commented out.
+    assert cs.publish_targets("newsletter") == []
+    assert cs.publish_targets("linkedin") == []
 
 
 def test_topic_keywords_present(config_dir):
@@ -156,3 +157,24 @@ def test_max_posts_needed_is_greediest_channel():
     assert t3.max_posts_needed() == 5
     # no enabled channels -> None
     assert topic().max_posts_needed() is None
+
+
+def test_hero_style_parsing(config_dir):
+    b = load_brand(config_dir / "brand.cs.yml")
+    assert b.hero_style is not None
+    assert b.hero_style.enabled is True
+    assert b.hero_style.aspect_ratio == "4:5"
+    assert b.hero_style.image_model  # non-empty model id
+    assert b.hero_style.style        # non-empty descriptor
+
+
+def test_hero_style_absent_is_none():
+    from scripts.lib.config import BrandConfig
+    data = dict(
+        account_name="x", footer_text="", canvas_width=1080, canvas_height=1350,
+        margin=90, max_cards=7, min_cards=5, jpeg_quality=92,
+        fonts={"heading": "Inter", "body": "Inter"}, type_scale={"title_px": 84},
+        palette={"background": "#000", "surface": "#111", "text_primary": "#fff",
+                 "text_muted": "#aaa", "accent": "#38BDF8", "card_type_colors": {}},
+    )
+    assert BrandConfig(**data).hero_style is None

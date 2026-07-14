@@ -120,15 +120,27 @@ brand:
   min_cards: 5                         # validator: fewest content cards allowed
   max_cards: 7                         # validator: most cards allowed
   jpeg_quality: 92
-  motif: ["circuit", "neural"]         # front-card backdrop; one name or a list that rotates by date
-                                       # options: neural circuit waveform orbits hexgrid particles topo grid molecule helix none
+  motif: ["circuit", "neural"]         # front-card backdrop (fallback when no hero image);
+                                       # one name or a list that rotates by date. options:
+                                       # neural circuit waveform orbits hexgrid particles topo grid molecule helix none
+  hero_style:                          # optional: AI hero image on the front card (omit to always use the motif)
+    enabled: true                      # false = skip hero, always use the motif backdrop
+    image_model: "gemini-3.1-flash-image-preview"   # cheaper flash tier; swap to
+                                       # nano-banana-pro-preview or gemini-3-pro-image-preview for top quality
+    aspect_ratio: "4:5"                # matches the 1080x1350 card
+    style: >                           # per-topic house style, folded into the hero prompt
+      Premium editorial 3D render, dark studio void, single cyan (#38BDF8) accent,
+      no text, no words, no diagrams.
   fonts:
     heading: "Inter"                   # font family names (Inter is bundled)
     body: "Inter"
-  type_scale:
-    title_px: 64
-    body_px: 42
-    footer_px: 28
+  type_scale:                          # per-canvas font sizes (px)
+    title_px: 84                       # title-card headline
+    title_source_px: 40                # title-card source/venue line
+    heading_px: 64                     # content-card question heading
+    body_px: 50                        # content-card body copy
+    label_px: 30                       # account eyebrow label
+    footer_px: 32                      # content-card footer / source line
   palette:
     background: "#0B1220"
     surface: "#1E293B"
@@ -146,7 +158,7 @@ brand:
   logo_path: ""                        # optional path to a logo image
 ```
 
-All fields are required except `motif` (default `none`) and `logo_path` (default empty).
+All fields are required except `motif` (default `none`), `hero_style` (optional — omit to always use the motif backdrop), and `logo_path` (default empty).
 
 ---
 
@@ -157,13 +169,14 @@ Copy `.env.example` → `.env`. Only `CONTACT_EMAIL` matters for a basic run.
 | Var | Meaning |
 |---|---|
 | `CONTACT_EMAIL` | **Required.** Real address for polite API pools + Unpaywall OA lookup. A placeholder disables OA screenshots (Unpaywall returns 422). |
+| `GOOGLE_API_KEY` | Optional. Enables the front-card hero image (Gemini image generation; requires billing enabled). Without it, `research-hero` fails and the front card falls back to the branded motif backdrop. |
 | `SEMANTIC_SCHOLAR_API_KEY` | Optional. Without it, Semantic Scholar usually rate-limits (429) and contributes nothing. |
 | `NCBI_API_KEY` | Optional. Higher PubMed rate limit. |
 | `OPENALEX_MAILTO` | Optional. Defaults to `CONTACT_EMAIL`. |
 | `ENABLE_FULL_TEXT` | `true`/`false` — extract full paper text (falls back to abstract). |
 | `ENABLE_PAPER_SCREENSHOT` | `true`/`false` — arXiv/OA first-page screenshot card. |
 | `PDF_MAX_BYTES`, `PDF_FETCH_TIMEOUT_SECONDS` | PDF fetch limits. |
-| `MIN_SCORE_TO_POST` | Quality gate (default 70). A paper must score ≥ this to post. |
+| `MIN_SCORE_TO_POST` | Advisory quality bar (default 70), honored by the skill's judgment — no script enforces it. A paper should score ≥ this to post. |
 | `PAPER_LOOKBACK_HOURS`, `MAX_CANDIDATES_PER_RUN`, `MAX_LLM_SCORED_CANDIDATES` | Selection knobs (advisory). |
 | `DATA_DIR`, `OUTPUT_DIR` | Where the ledger and outputs live. |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Optional legacy Telegram push. |

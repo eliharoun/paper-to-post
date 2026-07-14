@@ -134,11 +134,13 @@ identity before posting anything — see
 
 Open Claude Code in this repo and say **"run the daily research posts"** (every enabled
 topic) or scope it — **"just the CS posts"**. For each topic the skill gathers recent
-papers, scores them and picks the top ~5, writes each post, validates it against the hard
-gate, renders the cards (with the paper's first-page screenshot inserted near the end for
-arXiv/OA papers), bundles it under `outputs/<date>/<account>/post<N>/`, and delivers to
-**every channel in that topic's `publish` list** — an Instagram carousel, a LinkedIn post,
-and/or an email-newsletter digest.
+papers, scores them and picks the top posts (how many is each channel's `max_posts`),
+writes each post, validates it against the hard gate, renders the cards — including an
+AI-generated **hero image** on the front card (or the branded motif backdrop as fallback)
+and the paper's first-page screenshot inserted near the end for arXiv/OA papers — bundles
+it under `outputs/<date>/<account>/post<N>/`, pauses for you to approve each front card,
+then delivers to **every channel in that topic's `publish` list** — an Instagram carousel,
+a LinkedIn post, and/or an email-newsletter digest.
 
 ## Pipeline
 
@@ -146,6 +148,7 @@ and/or an email-newsletter digest.
 |---|---|---|
 | Gather | `research-gather --topic <id>` | runs the topic's configured sources (arXiv, OpenAlex, Crossref, Semantic Scholar, PubMed, bioRxiv/medRxiv, industry AI labs), dedupes, and rule-filters → `candidates.json`. Reads sources from config; you don't call fetchers directly. |
 | Validate | `research-validate` | hard gate — schema/hype/grounding/link/health (exit 0/1) |
+| Hero | `research-hero` | AI hero image (Gemini) behind the front-card headline; falls back to the motif backdrop if disabled/unset/failed (needs `GOOGLE_API_KEY`) |
 | Render | `research-render`, `research-screenshot` | HTML/CSS cards at 2× (2160×2700) + gated arXiv/OA first-page screenshot |
 | Bundle | `research-bundle` | ordered cards + caption; records the dedupe ledger |
 | Publish — Instagram | `publish_instagram.mjs` (Composio CLI) | posts the carousel, verifying the target account first |
@@ -208,8 +211,10 @@ The two shipped topics are examples. **See [`CONFIG.md`](CONFIG.md) for the full
   `publish:` list (which channels + their account aliases).
 - **Branding** — `config/brand.<account>.yml`. Palette, fonts, and `account_name` (the
   header on every card).
-- **Env** — `.env` (see `.env.example`). `CONTACT_EMAIL` for polite API pools, optional
-  API keys, render toggles, and advisory selection knobs (`MIN_SCORE_TO_POST`, etc.).
+- **Env** — `.env` (see `.env.example`). `CONTACT_EMAIL` for polite API pools,
+  `GOOGLE_API_KEY` to enable front-card hero images (Gemini; falls back to the motif
+  backdrop without it), optional API keys, render toggles, and advisory selection knobs
+  (`MIN_SCORE_TO_POST`, etc.).
 
 ## License
 

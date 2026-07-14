@@ -30,3 +30,20 @@ def test_generated_post_roundtrip():
     )
     dumped = post.model_dump()
     assert GeneratedPost(**dumped).carousel_cards[0].card_type == "hook"
+
+
+def test_generated_post_hero_image_prompt_optional():
+    base = dict(
+        paper_id="x", source_title="t", source_url="https://e.com", is_preprint=True,
+        plain_english_headline="h", one_sentence_summary="s", why_it_matters="w",
+        what_they_did="d", what_they_found="f", important_context="c",
+        limitations=["l"], avoid_saying=["a"],
+        carousel_cards=[{"card_number": 1, "card_type": "title",
+                         "heading": "H", "body": "", "footer": ""}],
+        caption="cap", hashtags=["#x"], alt_text="alt", confidence="high",
+    )
+    # absent is valid
+    assert GeneratedPost(**base).hero_image_prompt is None
+    # present is stored
+    p = GeneratedPost(**base, hero_image_prompt="a glowing cell")
+    assert p.hero_image_prompt == "a glowing cell"
