@@ -23,9 +23,11 @@ topics:
     sources:
       arxiv:
         # cs.SE software eng, cs.DC distributed (MLOps), cs.CR security/adversarial,
-        # cs.IR retrieval/RAG, cs.RO robotics, cs.PL languages/compilers.
+        # cs.IR retrieval/RAG, cs.RO robotics, cs.PL languages/compilers,
+        # cs.MA multi-agent systems, cs.ET emerging tech, cs.CY computers & society.
         categories: ["cs.AI", "cs.CL", "cs.LG", "cs.CV", "cs.SE", "cs.DC",
-                     "cs.CR", "cs.IR", "cs.RO", "cs.PL", "stat.ML"]
+                     "cs.CR", "cs.IR", "cs.RO", "cs.PL", "stat.ML",
+                     "cs.MA", "cs.ET", "cs.CY"]
       openalex:
         # Subfields (precise, like arXiv categories): 1702 AI, 1707 Computer
         # Vision, 1712 Software. OpenAlex `search` is strict full-text AND, so
