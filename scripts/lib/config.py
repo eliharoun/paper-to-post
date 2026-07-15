@@ -38,7 +38,8 @@ class HeroStyle(_Strict):
     #   gemini-3-pro-image-preview
     image_model: str = "gemini-3.1-flash-image-preview"
     aspect_ratio: str = "4:5"
-    style: str = ""     # per-topic house style (visual medium/palette/mood), folded into hero_image_prompt at write time
+    # per-topic house style (visual medium/palette/mood), folded into hero_image_prompt
+    style: str = ""
     # Optional per-topic guidance on WHAT to depict (the concept), separate from
     # `style` (HOW it looks). Writer-facing only — steers subject choice, never
     # pasted into the image prompt verbatim. Empty = follow the guide's defaults.

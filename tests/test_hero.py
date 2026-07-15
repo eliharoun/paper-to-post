@@ -42,7 +42,7 @@ def test_composite_front_card_handles_long_headline(tmp_path):
 def test_composite_front_card_long_single_token_does_not_overflow(tmp_path):
     """A short headline with one very long word must not clip off the canvas:
     the auto-size loop caps by width and _hard_break_wide_lines splits the token."""
-    from PIL import ImageDraw, ImageFont
+    from PIL import ImageDraw
 
     from scripts.lib.hero import _font, _hard_break_wide_lines, composite_front_card
     hero_png = tmp_path / "hero.png"
