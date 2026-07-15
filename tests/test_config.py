@@ -50,6 +50,11 @@ def test_biomed_topic_has_guardrails_and_biomed_sources(config_dir):
     assert bio.requires_health_guardrails is True
     assert bio.sources.pubmed is not None and bio.sources.pubmed.query  # PubMed configured
     assert "biorxiv" in bio.sources.biorxiv.servers
+    # flagship journals stream (Nature, Lancet, ...)
+    assert bio.sources.journals is not None
+    assert "nature" in bio.sources.journals.journals
+    assert "lancet" in bio.sources.journals.journals
+    assert "journals" in bio.sources.active()
 
 
 def test_topic_sources_active_lists_only_configured(config_dir):

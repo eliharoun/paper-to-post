@@ -57,6 +57,9 @@ def _fetch_source(name: str, src, since: str, until: str) -> list:
     if name == "labs":
         from scripts.fetch_labs import fetch_labs
         return fetch_labs(src.labs, since, until, src.query or None)
+    if name == "journals":
+        from scripts.fetch_journals import fetch_journals
+        return fetch_journals(src.journals, since, until, src.query or None)
     raise ValueError(f"unknown source: {name}")
 
 

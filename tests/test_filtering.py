@@ -126,3 +126,16 @@ def test_missing_ids_scores_lower():
     with_id = _scored(arxiv_id="2406.1", doi=None)
     without = _scored(arxiv_id=None, doi=None)
     assert with_id > without
+
+
+def test_flagship_venue_scores_higher():
+    # A brand-new Nature paper (0 citations) should outrank the same paper in an
+    # unknown venue — that's the whole point of the prestige bonus.
+    flagship = _scored(topic_id="bio_genetics_biomed", venue="Nature")
+    obscure = _scored(topic_id="bio_genetics_biomed", venue="Journal of Obscure Results")
+    assert flagship > obscure
+
+
+def test_flagship_venue_matches_pubmed_style_name():
+    # PubMed spells it "Lancet (London, England)"; the bonus must still apply.
+    assert _scored(venue="Lancet (London, England)") > _scored(venue="Some Other Journal")

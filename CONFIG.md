@@ -62,9 +62,14 @@ sources:
   labs:
     labs: ["meta", "google", "deepmind"]  # pull by author affiliation (via OpenAlex)
     query: "large language models"
+  journals:
+    journals: ["nature", "lancet", "cell"]  # pull top venues by OpenAlex source id
+    query: ""                                # optional; narrows the venue stream
 ```
 
 Guidance: prefer **arxiv categories** and **openalex subfields** (precise) over free-text queries. Keep queries short — long ones over-narrow. A single source failing (e.g. a 429) is logged and skipped, not fatal.
+
+**`journals`** gives flagship venues (Nature, The Lancet, Cell, Science, …) a guaranteed stream into the candidate pool — they otherwise compete on citations, and a brand-new top-journal paper has ~0. Papers from any of these venues also get a **+15 prestige bonus** in ranking, regardless of which source surfaced them. Known journal names and their OpenAlex source ids live in `scripts/lib/journals.py` (add a journal = one line there). Top journals expose no free public listing API, so this pulls them via OpenAlex by source id — the same mechanism `labs` uses for institutions.
 
 ### `publish:` — one entry per channel
 

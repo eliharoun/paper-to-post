@@ -121,6 +121,11 @@ class LabsSource(_Strict):
     query: str = ""
 
 
+class JournalsSource(_Strict):
+    journals: list[str] = []        # e.g. ["nature", "lancet", "cell"] (via OpenAlex source id)
+    query: str = ""
+
+
 class TopicSources(_Strict):
     """Which paper sources a topic pulls from. Absent source => not run."""
     arxiv: ArxivSource | None = None
@@ -130,10 +135,12 @@ class TopicSources(_Strict):
     pubmed: PubmedSource | None = None
     biorxiv: BiorxivSource | None = None
     labs: LabsSource | None = None
+    journals: JournalsSource | None = None
 
     def active(self) -> list[str]:
         """Names of the sources configured for this topic (in a stable order)."""
-        order = ["arxiv", "openalex", "crossref", "semantic_scholar", "pubmed", "biorxiv", "labs"]
+        order = ["arxiv", "openalex", "crossref", "semantic_scholar", "pubmed",
+                 "biorxiv", "labs", "journals"]
         return [name for name in order if getattr(self, name) is not None]
 
 

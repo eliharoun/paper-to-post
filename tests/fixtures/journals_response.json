@@ -1,0 +1,22 @@
+{
+  "meta": {"count": 1},
+  "results": [
+    {
+      "id": "https://openalex.org/W123123123",
+      "doi": "https://doi.org/10.1038/journals.1",
+      "title": "A Single-Cell Atlas of the Human Cortex",
+      "publication_date": "2026-07-05",
+      "abstract_inverted_index": {"We": [0], "map": [1], "cortical": [2], "cells": [3]},
+      "authorships": [
+        {"author": {"display_name": "Rosalind Franklin"}, "institutions": [{"display_name": "MRC"}]}
+      ],
+      "primary_location": {
+        "landing_page_url": "https://www.nature.com/articles/journals.1",
+        "pdf_url": null,
+        "source": {"display_name": "Nature"}
+      },
+      "open_access": {"is_oa": false},
+      "cited_by_count": 0
+    }
+  ]
+}

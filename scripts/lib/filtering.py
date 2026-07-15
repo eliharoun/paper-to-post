@@ -4,6 +4,7 @@ import math
 from datetime import date
 
 from scripts.lib.config import TopicsConfig
+from scripts.lib.journals import is_flagship_venue
 
 MIN_ABSTRACT_CHARS = 400
 
@@ -106,7 +107,8 @@ def rule_score(
     """Cheap 0-100 ranking heuristic (NOT newsworthiness judgment).
 
     Weights: recency 30, abstract length 20, topic priority 20,
-    identifiability 10, open-access 5, citations 10 (log-damped), hype penalty -15.
+    identifiability 10, open-access 5, citations 10 (log-damped),
+    flagship venue +15, hype penalty -15.
     """
     lookback_days = (lookback_hours or topics.lookback_hours) / 24.0
 
@@ -136,9 +138,15 @@ def rule_score(
     cites = paper.get("citation_count") or 0
     cite_pts = min(math.log1p(max(cites, 0)) / math.log1p(100), 1.0) * 10
 
+    # flagship venue (+15): a brand-new Nature/Lancet/Cell paper has ~0 citations,
+    # so without this it ranks no higher than a random preprint. Reward the venue
+    # directly, matched on the normalized venue name (works for any source).
+    venue_pts = 15.0 if is_flagship_venue(paper.get("venue")) else 0.0
+
     # hype penalty (-15)
     title_l = (paper.get("title") or "").lower()
     hype_penalty = -15.0 if any(t in title_l for t in _HYPE_TERMS) else 0.0
 
-    total = recency + abstract_pts + priority_pts + id_pts + oa_pts + cite_pts + hype_penalty
+    total = (recency + abstract_pts + priority_pts + id_pts + oa_pts
+             + cite_pts + venue_pts + hype_penalty)
     return round(max(0.0, min(100.0, total)), 2)

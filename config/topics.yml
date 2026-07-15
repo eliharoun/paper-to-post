@@ -92,6 +92,13 @@ topics:
         query: "(genetics OR genomics OR bioinformatics OR cancer OR oncology OR biomedical OR neuroscience OR immunology OR microbiology OR virology OR evolution) AND (research OR study)"
       biorxiv:
         servers: ["biorxiv", "medrxiv"]
+      journals:
+        # Flagship venues pulled by OpenAlex source id (see scripts/lib/journals.py).
+        # Gives top journals a guaranteed stream into the pool; the venue-prestige
+        # bonus in rule_score then ranks brand-new (0-citation) papers up.
+        journals: ["nature", "science", "cell", "lancet", "nature-medicine",
+                   "nature-genetics", "nature-communications", "nature-neuroscience"]
+        query: ""
     publish:
       - channel: instagram
         alias: DailyBioBits
