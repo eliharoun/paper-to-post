@@ -11,6 +11,8 @@ outputs/
 .DS_Store
 # Local Claude Code state — never commit anything under .claude/
 .claude/
+# Superpowers plan/spec docs — local only, kept out of the repo
+docs/
 # Composio CLI scratch files left by `composio run`
 .composio-run-*
 scripts/.composio-run-*
