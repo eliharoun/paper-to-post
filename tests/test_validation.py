@@ -85,6 +85,15 @@ def test_check_hype_flags_term_in_caption():
     assert any("breakthrough" in e for e in check_hype(post))
 
 
+def test_check_hype_flags_revolutionary_and_game_changer():
+    """These are documented in SKILL.md as blocked; the gate must actually block them."""
+    for term in ("a revolutionary result", "a real game-changer", "a game changer for the field"):
+        bad = json.loads((FIX / "good_post.json").read_text())
+        bad["carousel_cards"][0]["body"] = f"This is {term}."
+        _, post = check_schema(bad, BRAND)
+        assert check_hype(post), f"expected hype flag for {term!r}"
+
+
 def test_check_style_passes_clean_post():
     _, post = check_schema(GOOD_POST, BRAND)
     assert check_style(post) == []

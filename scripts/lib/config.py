@@ -5,10 +5,24 @@ from pathlib import Path
 
 import yaml
 from dotenv import load_dotenv
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
-class Palette(BaseModel):
+class _Strict(BaseModel):
+    """Base for all config models: reject unknown keys so a typo in a YAML file
+    (e.g. `hero_syle:` or a misspelled field) raises a clear ValidationError at
+    load time instead of silently dropping the key and degrading the output."""
+    model_config = ConfigDict(extra="forbid")
+
+
+# Keys allowed inside the free-form `type_scale` dict (pydantic can't guard dict
+# values, so a typo like `titel_px` would silently fall back to a render default).
+_ALLOWED_TYPE_SCALE_KEYS = {
+    "title_px", "title_source_px", "heading_px", "body_px", "label_px", "footer_px",
+}
+
+
+class Palette(_Strict):
     background: str
     surface: str
     text_primary: str
@@ -17,17 +31,21 @@ class Palette(BaseModel):
     card_type_colors: dict[str, str]
 
 
-class HeroStyle(BaseModel):
+class HeroStyle(_Strict):
     enabled: bool = True
     # Default = cheaper flash tier. To upgrade quality, swap image_model to:
     #   nano-banana-pro-preview     (top quality, ~pro pricing)
     #   gemini-3-pro-image-preview
     image_model: str = "gemini-3.1-flash-image-preview"
     aspect_ratio: str = "4:5"
-    style: str = ""     # per-topic house style, folded into hero_image_prompt at write time
+    style: str = ""     # per-topic house style (visual medium/palette/mood), folded into hero_image_prompt at write time
+    # Optional per-topic guidance on WHAT to depict (the concept), separate from
+    # `style` (HOW it looks). Writer-facing only — steers subject choice, never
+    # pasted into the image prompt verbatim. Empty = follow the guide's defaults.
+    concept_guidance: str = ""
 
 
-class BrandConfig(BaseModel):
+class BrandConfig(_Strict):
     account_name: str
     footer_text: str
     canvas_width: int
@@ -43,6 +61,17 @@ class BrandConfig(BaseModel):
     palette: Palette
     logo_path: str = ""
     hero_style: HeroStyle | None = None
+
+    @field_validator("type_scale")
+    @classmethod
+    def _check_type_scale(cls, v: dict[str, int]) -> dict[str, int]:
+        unknown = set(v) - _ALLOWED_TYPE_SCALE_KEYS
+        if unknown:
+            raise ValueError(
+                f"unknown type_scale key(s) {sorted(unknown)}; "
+                f"allowed: {sorted(_ALLOWED_TYPE_SCALE_KEYS)}"
+            )
+        return v
 
     def resolve_motif(self, key: str | None = None) -> str:
         """Pick one motif. If `motif` is a list, rotate deterministically by `key`
@@ -62,37 +91,37 @@ class BrandConfig(BaseModel):
 # Each source is optional; its presence under a topic's `sources:` means "run it".
 
 
-class ArxivSource(BaseModel):
+class ArxivSource(_Strict):
     categories: list[str] = []
 
 
-class OpenAlexSource(BaseModel):
+class OpenAlexSource(_Strict):
     subfields: list[str] = []       # OpenAlex subfield ids (precise filter, preferred)
     query: str = ""                 # optional short search phrase (strict full-text AND)
 
 
-class CrossrefSource(BaseModel):
+class CrossrefSource(_Strict):
     query: str = ""                 # relevance-ranked; keep short
 
 
-class SemanticScholarSource(BaseModel):
+class SemanticScholarSource(_Strict):
     query: str = ""
 
 
-class PubmedSource(BaseModel):
+class PubmedSource(_Strict):
     query: str = ""
 
 
-class BiorxivSource(BaseModel):
+class BiorxivSource(_Strict):
     servers: list[str] = ["biorxiv", "medrxiv"]
 
 
-class LabsSource(BaseModel):
+class LabsSource(_Strict):
     labs: list[str] = []            # e.g. ["meta", "google", "deepmind"]
     query: str = ""
 
 
-class TopicSources(BaseModel):
+class TopicSources(_Strict):
     """Which paper sources a topic pulls from. Absent source => not run."""
     arxiv: ArxivSource | None = None
     openalex: OpenAlexSource | None = None
@@ -111,7 +140,7 @@ class TopicSources(BaseModel):
 # ---- Per-channel publish config (a topic publishes to each listed channel) ---
 
 
-class PublishTarget(BaseModel):
+class PublishTarget(_Strict):
     """One publishing destination. `channel` selects the publisher; other fields
     are channel-specific (e.g. Instagram/LinkedIn account identity).
 
@@ -151,7 +180,7 @@ class PublishTarget(BaseModel):
         return v
 
 
-class TopicConfig(BaseModel):
+class TopicConfig(_Strict):
     id: str
     enabled: bool
     account: str = ""
@@ -184,7 +213,7 @@ class TopicConfig(BaseModel):
         return max(caps)
 
 
-class TopicsConfig(BaseModel):
+class TopicsConfig(_Strict):
     default_language: str = "en"
     lookback_hours: int = 48
     max_candidates_per_topic: int = 20

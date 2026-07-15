@@ -14,6 +14,28 @@ def test_load_brand(config_dir):
     assert b.palette.card_type_colors["limitation"] == "#F87171"
 
 
+def test_brand_rejects_unknown_key():
+    """A typo'd brand key must raise, not silently drop (extra='forbid')."""
+    import pytest
+    from pydantic import ValidationError
+
+    from scripts.lib.config import BrandConfig
+
+    good = dict(
+        account_name="X", footer_text="", canvas_width=1080, canvas_height=1350,
+        margin=90, max_cards=7, min_cards=5, jpeg_quality=92,
+        fonts={"heading": "Inter", "body": "Inter"},
+        type_scale={"title_px": 108},
+        palette=dict(background="#000", surface="#111", text_primary="#fff",
+                     text_muted="#999", accent="#38BDF8", card_type_colors={}),
+    )
+    BrandConfig(**good)  # baseline loads
+    with pytest.raises(ValidationError):
+        BrandConfig(**{**good, "hero_syle": {"enabled": True}})  # misspelled block
+    with pytest.raises(ValidationError):
+        BrandConfig(**{**good, "type_scale": {"titel_px": 99}})  # typo'd type_scale key
+
+
 def test_load_topics_enabled_only(config_dir):
     t = load_topics(config_dir / "topics.yml")
     ids = [x.id for x in t.enabled_topics()]

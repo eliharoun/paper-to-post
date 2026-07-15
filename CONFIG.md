@@ -178,6 +178,7 @@ Copy `.env.example` → `.env`. Only `CONTACT_EMAIL` matters for a basic run.
 | `PDF_MAX_BYTES`, `PDF_FETCH_TIMEOUT_SECONDS` | PDF fetch limits. |
 | `MIN_SCORE_TO_POST` | Advisory quality bar (default 70), honored by the skill's judgment — no script enforces it. A paper should score ≥ this to post. |
 | `PAPER_LOOKBACK_HOURS`, `MAX_CANDIDATES_PER_RUN`, `MAX_LLM_SCORED_CANDIDATES` | Selection knobs (advisory). |
+| `HERO_MIN_TEXT_CONTRAST` | Min WCAG contrast (default 1.7) the front-card headline/label must have vs. the hero imagery, or `research-hero` falls back to the motif. Raise for stricter legibility; lower if good heroes get rejected. |
 | `DATA_DIR`, `OUTPUT_DIR` | Where the ledger and outputs live. |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Optional legacy Telegram push. |
 

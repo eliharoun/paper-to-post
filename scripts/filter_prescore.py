@@ -81,11 +81,15 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--only-topic", default=None,
                     help="keep only candidates in this topic id (limits to one account)")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--date", default=None,
+                    help="score recency against this date YYYY-MM-DD "
+                         "(default: today). Set it for reproducible ranking.")
     args = ap.parse_args(argv)
 
+    today = date.fromisoformat(args.date) if args.date else None
     ledger = Ledger(args.ledger) if args.ledger else Ledger(paths.ledger_path())
     n = run(args.papers, args.out, topics_path=args.topics, ledger=ledger,
-            only_topic=args.only_topic)
+            only_topic=args.only_topic, today=today)
     print(f"wrote {n} candidates to {args.out}")
     return 0
 

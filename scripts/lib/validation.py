@@ -10,6 +10,7 @@ from scripts.lib.textutil import avg_sentence_length, normalize_title
 
 BANNED_HYPE = (
     "cure", "proven", "proves", "guaranteed", "miracle", "breakthrough",
+    "revolutionary", "game-changer", "game changer",
     "game-changing", "game changing", "doctors recommend", "everyone should",
     "eliminates risk", "100%", "no risk",
 )

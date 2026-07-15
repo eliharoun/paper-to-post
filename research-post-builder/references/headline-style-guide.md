@@ -190,7 +190,15 @@ rules and the validator):
 ## Length & mechanics (hard constraints from the writing guide)
 
 - **Title-card `heading` ≤ 70 characters** (validator-enforced). Aim for **4–10 words** so it
-  reads as a thumbnail.
+  reads as a thumbnail. The front card renders the headline in **large, bottom-anchored type**,
+  wrapping to as many lines as it needs, so a tight, punchy line reads best and a long one just
+  wraps to more lines: favor brevity — the shorter the headline, the bigger and bolder it lands.
+- **Front-card text fills at least the bottom third.** The type is sized so the bottom-anchored
+  account label + headline block occupies **at least the bottom 1/3 of the card** (and can grow to
+  ~46% for a long headline) — large enough to read at a thumbnail glance. Because the headline block
+  can reach up to the midline, the `hero_image_prompt` must keep the **bottom ~40% of the frame
+  (everything below the midline) calm and dark** (empty space, shadow, or low-detail backdrop) so the
+  large headline reads cleanly — never place the focal subject or bright detail below the midline.
 - One idea; active voice; numerals not words ("7", not "seven"); no decoding-required puns.
 - **No em/en dashes** (`—` / `–`) in the headline or anywhere else — they read as AI-generated and
   the validator rejects them. Use a colon for a two-part headline (`Subject: the twist`), or a comma.

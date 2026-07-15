@@ -22,6 +22,19 @@ brand:
       Premium editorial 3D render, dark studio void, single cyan (#38BDF8) accent,
       cinematic volumetric lighting, sharp macro detail, sleek modern tech aesthetic,
       no text, no words, no diagrams.
+    # WHAT to depict (concept), separate from the visual `style` above. The hero
+    # should make a scroller grasp what THIS paper is about at a glance, not just
+    # read as generic "tech". Anchor the scene on the paper's actual object of
+    # study (the model, agent, system, data, or task it acts on) and the specific
+    # thing it does or finds, so the image is representative of that result and
+    # could not be swapped onto a different CS paper. Keep the signature staged,
+    # cinematic look; make the subject specific to the finding.
+    concept_guidance: >
+      Anchor the scene on this paper's actual subject and its specific result so a
+      viewer grasps what the paper is about from the image alone. Depict the real
+      object of study (the model, agent, tool, dataset, or task) doing or revealing
+      the paper's specific finding. Avoid generic tech imagery that could sit on any
+      other CS paper; the scene must be recognizably about THIS result.
   fonts:
     heading: "Inter"
     body: "Inter"
@@ -29,7 +42,7 @@ brand:
   # phone legibility: comfortable body, 1.5 line-height; the densest 280-char body
   # still fits the card height. Bump body_px/heading_px here to scale type globally.
   type_scale:
-    title_px: 84          # title-card headline
+    title_px: 108         # title-card headline
     title_source_px: 40   # title-card source/venue line
     heading_px: 64        # content-card question heading
     body_px: 50           # content-card body copy

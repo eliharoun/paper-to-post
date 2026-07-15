@@ -108,8 +108,12 @@ def gather(
     print(f"gather: deduped {len(all_papers)} -> {len(deduped)}")
 
     candidates_path = f"{out_dir}/candidates.json"
+    # Score recency against the window-end date, NOT wall-clock today, so the same
+    # --date reproduces the same candidate ranking regardless of which calendar day
+    # the run happens on (determinism).
     n = filter_run(
-        papers_path, candidates_path, topics_path=topics_path, only_topic=topic.id
+        papers_path, candidates_path, topics_path=topics_path, only_topic=topic.id,
+        today=date.fromisoformat(until),
     )
     print(f"gather: {n} candidates for topic '{topic.id}' -> {candidates_path}")
     return n, ok

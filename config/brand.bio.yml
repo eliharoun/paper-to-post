@@ -22,6 +22,9 @@ brand:
       Premium editorial macro 3D render, dark microscopic void, luminous organic
       forms, single mint-green (#34D399) bioluminescent accent, subsurface scattering,
       shallow depth of field, no text, no words, no diagrams.
+    # No `concept_guidance` here by design: it's a CS-only experiment for now
+    # (see config/brand.cs.yml). Bio heroes follow the hero-image-guide defaults.
+    # Add a parallel block here if/when we want the same subject-steering for bio.
   fonts:
     heading: "Inter"
     body: "Inter"
@@ -29,7 +32,7 @@ brand:
   # phone legibility: comfortable body, 1.5 line-height; the densest 280-char body
   # still fits the card height. Bump body_px/heading_px here to scale type globally.
   type_scale:
-    title_px: 84          # title-card headline
+    title_px: 108         # title-card headline
     title_source_px: 40   # title-card source/venue line
     heading_px: 64        # content-card question heading
     body_px: 50           # content-card body copy
