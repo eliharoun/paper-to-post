@@ -18,6 +18,27 @@ Before scoring, ask: **would a science-literate person stop scrolling for this?*
 | Visual carousel fit | 10 | Explainable in 5–7 substantive cards. |
 | Safety / low hype risk | 10 | Can be explained accurately without dangerous overclaiming. |
 
+## Trendiness signal (advisory input)
+
+Each candidate in `candidates.json` may carry a `score_breakdown.trendiness` (0–1),
+with `trend_terms` (the bursting terms that drove it) and `trend_signals` (per-source
+contributions: `corpus_burst`, `hackernews`, `gdelt`, `huggingface`).
+
+Use it as **corroborating evidence for the Public relevance & pull and Story quality /
+hook dimensions** — a high trendiness with sensible `trend_terms` suggests the subject
+is resonating right now, which strengthens a scroll-stop. **Weigh it, do not obey it:**
+
+- Trendiness never overrides the honesty firewall or the safety caps. A trending-but-weak
+  or trending-but-unsound paper is still skipped.
+- Sanity-check `trend_signals` before trusting a high score. A GDELT-driven spike can come
+  from an unrelated news event that happens to share a keyword; discount it if `trend_terms`
+  don't actually match the paper's contribution.
+- `trend_basis: cluster` means the rolling history was too short (cold start) — the signal
+  is weaker; lean more on your own read. `insufficient_corpus` means no trendiness was
+  computed; ignore the field.
+
+Trendiness is one input to the same 0–100 judgment, not a separate gate.
+
 ## How to score
 
 1. For each dimension, assign points against the descriptions above. Be strict on evidence clarity and safety.

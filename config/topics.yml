@@ -62,6 +62,24 @@ topics:
       #   min_confidence: medium        # drop items below this: low | medium | high
       #   show_why_it_matters: true     # render the per-item "Why it matters" line
       #   footer: "Know someone who'd find this useful? Forward it along."
+    trends:
+      enabled: true
+      sort_bump: 8.0
+      top_slice: 25
+      blend:
+        local_weight: 0.6
+        external_weight: 0.4
+        method: weighted
+      signals:
+        - name: hackernews
+          enabled: true
+          params: { min_points: 50 }
+        - name: gdelt
+          enabled: true
+          params: { timespan: "1w" }
+        - name: huggingface
+          enabled: true
+          params: {}
 
   - id: bio_genetics_biomed
     enabled: true
@@ -108,3 +126,21 @@ topics:
         max_posts: 5                  # publish up to 5 carousels
       # - channel: linkedin
       # - channel: newsletter
+    trends:
+      enabled: true
+      sort_bump: 8.0
+      top_slice: 25
+      blend:
+        local_weight: 0.6
+        external_weight: 0.4
+        method: weighted
+      signals:
+        - name: gdelt
+          enabled: true
+          params: { timespan: "1w" }
+        - name: hackernews
+          enabled: false
+          params: {}
+        - name: huggingface
+          enabled: false
+          params: {}

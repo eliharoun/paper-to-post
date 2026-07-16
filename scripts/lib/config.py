@@ -188,6 +188,57 @@ class PublishTarget(_Strict):
         return v
 
 
+class BlendConfig(_Strict):
+    local_weight: float = 0.6
+    external_weight: float = 0.4
+    method: str = "weighted"        # weighted | max | multiplier
+
+    @field_validator("method")
+    @classmethod
+    def _check_method(cls, v: str) -> str:
+        if v not in ("weighted", "max", "multiplier"):
+            raise ValueError(
+                f"blend method must be weighted|max|multiplier, got {v!r}"
+            )
+        return v
+
+
+class CorpusBurstConfig(_Strict):
+    enabled: bool = True
+    # `weight` is reserved for future multi-local-signal blending; today corpus_burst
+    # is the sole local signal, so the local/external split is set by blend.local_weight.
+    weight: float = 1.0
+    window_days: int = 14
+    min_doc_freq: int = 3           # a term must appear in >= this many of today's papers
+    top_terms: int = 5              # raw score = mean of a paper's top-N term weights
+    burst_cap: float = 3.0          # tanh scale for per-term burst (soft saturation)
+    min_corpus: int = 30            # below this, no trendiness is computed
+    extra_stopwords: list[str] = []
+
+
+class SignalConfig(_Strict):
+    """One external signal provider's config. `params` is a free-form dict the
+    provider interprets, so adding a provider needs no new config class."""
+    name: str                       # registry key: hackernews | gdelt | huggingface | ...
+    enabled: bool = True
+    weight: float = 1.0
+    timeout_s: float = 8.0
+    cache_ttl_min: int = 180
+    params: dict = {}
+
+
+class TrendsConfig(_Strict):
+    enabled: bool = True
+    sort_bump: float = 8.0
+    top_slice: int = 25
+    blend: BlendConfig = BlendConfig()
+    corpus_burst: CorpusBurstConfig = CorpusBurstConfig()
+    signals: list[SignalConfig] = []
+
+    def active_signals(self) -> list[SignalConfig]:
+        return [s for s in self.signals if s.enabled]
+
+
 class TopicConfig(_Strict):
     id: str
     enabled: bool
@@ -199,6 +250,7 @@ class TopicConfig(_Strict):
     requires_health_guardrails: bool = False
     sources: TopicSources = TopicSources()
     publish: list[PublishTarget] = []
+    trends: TrendsConfig = TrendsConfig()
 
     def publish_targets(self, channel: str | None = None) -> list[PublishTarget]:
         """Enabled publish targets, optionally filtered to one channel."""
