@@ -43,3 +43,18 @@ def test_invalid_blend_method_rejected():
 def test_unknown_trends_key_rejected():
     with pytest.raises(ValidationError):
         TrendsConfig(nonsense=1)
+
+
+def test_new_signals_parse_with_params():
+    cfg = TrendsConfig(signals=[
+        {"name": "bluesky", "params": {"max_keywords": 5, "since_hours": 48}},
+        {"name": "wikipedia", "params": {"titles": {"llm": "Large_language_model"},
+                                         "baseline_days": 10}},
+        {"name": "reddit", "enabled": True,
+         "params": {"subreddits": ["MachineLearning", "LocalLLaMA"],
+                    "listing": "top", "timespan": "week"}},
+    ])
+    names = [s.name for s in cfg.active_signals()]
+    assert names == ["bluesky", "wikipedia", "reddit"]
+    reddit = cfg.signals[2]
+    assert reddit.params["subreddits"] == ["MachineLearning", "LocalLLaMA"]

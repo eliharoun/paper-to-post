@@ -14,13 +14,19 @@ __all__ = ["TrendScorer", "_paper_id", "RunContext"]
 def _registry() -> dict[str, type]:
     """name -> external provider class. Imported lazily so httpx-touching modules
     don't load when trends are disabled. Add a provider here to make it configurable."""
+    from scripts.lib.trends.bluesky import BlueskySignal
     from scripts.lib.trends.gdelt import GdeltSignal
     from scripts.lib.trends.hackernews import HackerNewsSignal
     from scripts.lib.trends.huggingface import HuggingFaceSignal
+    from scripts.lib.trends.reddit import RedditSignal
+    from scripts.lib.trends.wikipedia import WikipediaSignal
     return {
         "hackernews": HackerNewsSignal,
         "gdelt": GdeltSignal,
         "huggingface": HuggingFaceSignal,
+        "bluesky": BlueskySignal,
+        "wikipedia": WikipediaSignal,
+        "reddit": RedditSignal,
     }
 
 

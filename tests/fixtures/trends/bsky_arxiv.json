@@ -1,0 +1,7 @@
+{
+  "posts": [
+    {"uri": "at://b/1", "likeCount": 500, "repostCount": 300, "replyCount": 200,
+     "record": {"text": "must-read paper https://arxiv.org/abs/2607.13034"},
+     "embed": {"external": {"uri": "https://arxiv.org/abs/2607.13034"}}}
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "data": {
+    "children": [
+      {"data": {"title": "New diffusion model beats SOTA", "score": 900,
+                "num_comments": 100, "url": "https://arxiv.org/abs/2607.13034"}},
+      {"data": {"title": "quantum annealing discussion", "score": 200,
+                "num_comments": 50, "url": "https://example.com/blog"}}
+    ]
+  }
+}

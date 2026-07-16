@@ -1,0 +1,8 @@
+{
+  "posts": [
+    {"uri": "at://a/1", "likeCount": 90, "repostCount": 8, "replyCount": 2,
+     "record": {"text": "new diffusion model results are wild"}},
+    {"uri": "at://a/2", "likeCount": 40, "repostCount": 5, "replyCount": 5,
+     "record": {"text": "quantum annealing benchmark thread"}}
+  ]
+}

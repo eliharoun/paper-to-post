@@ -72,3 +72,48 @@ def get_text(
         raise FetchError(str(exc)) from exc
     except httpx.TransportError as exc:
         raise FetchError(f"network error: {exc}") from exc
+
+
+def post_text(
+    url: str,
+    *,
+    data: dict | None = None,
+    headers: dict | None = None,
+    auth: tuple[str, str] | None = None,
+    timeout: float = 30.0,
+    max_attempts: int = 4,
+    transport: httpx.BaseTransport | None = None,
+) -> str:
+    """POST a form body and return the response text, retrying transient errors.
+
+    Mirrors get_text: same retry policy, polite User-Agent, and `transport`
+    injection for tests. `auth` is (username, password) HTTP Basic. Used for
+    OAuth token endpoints (e.g. Reddit's application-only grant).
+    """
+    merged_headers = {"User-Agent": user_agent()}
+    if headers:
+        merged_headers.update(headers)
+
+    @retry(
+        stop=stop_after_attempt(max_attempts),
+        wait=wait_exponential(multiplier=1, min=1, max=30),
+        retry=retry_if_exception_type((httpx.TransportError, _RetryableStatus)),
+        reraise=True,
+    )
+    def _do() -> str:
+        with httpx.Client(
+            timeout=timeout, transport=transport, follow_redirects=True
+        ) as client:
+            resp = client.post(url, data=data, auth=auth, headers=merged_headers)
+            if resp.status_code >= 500 or resp.status_code == 429:
+                raise _RetryableStatus(f"status {resp.status_code}")
+            if resp.status_code >= 400:
+                raise FetchError(f"POST {url} -> {resp.status_code}")
+            return resp.text
+
+    try:
+        return _do()
+    except _RetryableStatus as exc:
+        raise FetchError(str(exc)) from exc
+    except httpx.TransportError as exc:
+        raise FetchError(f"network error: {exc}") from exc

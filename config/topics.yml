@@ -80,6 +80,27 @@ topics:
         - name: huggingface
           enabled: true
           params: {}
+        - name: bluesky
+          enabled: true
+          params: { max_keywords: 6, since_hours: 72, posts_per_query: 50, bump_cap: 0.3 }
+        - name: wikipedia
+          enabled: true
+          # Optional map; keys MUST match this topic's `keywords` exactly (the code
+          # does titles.get(keyword)). Unmapped keywords are title-cased as a fallback.
+          params:
+            baseline_days: 14
+            titles:
+              llm: "Large_language_model"
+              "language model": "Language_model"
+              transformer: "Transformer_(deep_learning)"
+        - name: reddit
+          enabled: true
+          # Skipped automatically if REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET are unset.
+          params:
+            subreddits: ["MachineLearning", "LocalLLaMA", "artificial", "compsci"]
+            listing: hot
+            timespan: week
+            bump_cap: 0.3
 
   - id: bio_genetics_biomed
     enabled: true
@@ -144,3 +165,25 @@ topics:
         - name: huggingface
           enabled: false
           params: {}
+        - name: bluesky
+          enabled: true
+          params: { max_keywords: 6, since_hours: 72, posts_per_query: 50, bump_cap: 0.3 }
+        - name: wikipedia
+          enabled: true
+          # Keys MUST match this topic's `keywords` exactly. Bio keywords are stems
+          # (genom, immun), so map the stems — not "genomics"/"immunology".
+          params:
+            baseline_days: 14
+            titles:
+              crispr: "CRISPR"
+              genom: "Genomics"
+              immun: "Immunology"
+        - name: reddit
+          enabled: true
+          # r/science + biomed communities are the main reason Reddit is here:
+          # they cover papers HN/HuggingFace miss. Skipped if creds unset.
+          params:
+            subreddits: ["science", "genetics", "bioinformatics", "Neuroscience", "biology"]
+            listing: hot
+            timespan: week
+            bump_cap: 0.3

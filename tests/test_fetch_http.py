@@ -30,3 +30,43 @@ def test_get_text_follows_redirects():
     transport = httpx.MockTransport(handler)
     out = get_text("http://example.com/x", transport=transport)
     assert out == "final body"
+
+
+def test_post_text_sends_form_and_basic_auth():
+    import base64
+
+    import httpx
+
+    from scripts.lib.fetch_http import post_text
+
+    seen = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        seen["auth"] = req.headers.get("authorization")
+        seen["body"] = req.content.decode()
+        seen["ua"] = req.headers.get("user-agent")
+        return httpx.Response(200, text='{"access_token": "tok"}')
+
+    t = httpx.MockTransport(handler)
+    out = post_text(
+        "https://example.com/token",
+        data={"grant_type": "client_credentials"},
+        auth=("id", "secret"),
+        transport=t,
+    )
+    assert '"access_token": "tok"' in out
+    assert seen["body"] == "grant_type=client_credentials"
+    expected = "Basic " + base64.b64encode(b"id:secret").decode()
+    assert seen["auth"] == expected
+    assert seen["ua"].startswith("paper-to-post/")
+
+
+def test_post_text_raises_on_4xx():
+    import httpx
+    import pytest
+
+    from scripts.lib.fetch_http import FetchError, post_text
+
+    t = httpx.MockTransport(lambda req: httpx.Response(401, text="no"))
+    with pytest.raises(FetchError):
+        post_text("https://example.com/token", data={"a": "b"}, transport=t)
