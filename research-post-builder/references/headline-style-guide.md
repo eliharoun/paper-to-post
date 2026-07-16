@@ -204,7 +204,7 @@ rules and the validator):
   the validator rejects them. Use a colon for a two-part headline (`Subject: the twist`), or a comma.
 - The **caption's first line ≤ ~125 chars** is the hook before Instagram's "…more" fold — same
   craft applies, and it must still carry the honest finding (see writing-guide caption rules).
-- Keep the source/venue in the title-card `footer`, never a preprint label.
+- Leave the title-card `footer` empty (`""`). Card footers are auto-generated at render time from the paper (source + full publication date); the title card intentionally gets none. Don't hand-write a source line.
 
 ---
 

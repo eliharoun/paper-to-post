@@ -13,6 +13,9 @@ from templates.render import render_text_cards
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Render carousel text cards")
     ap.add_argument("--post", required=True)
+    ap.add_argument("--paper", default=None,
+                    help="selected_paper.json; drives deterministic card footers "
+                         "(source + full publication date). Omit to keep authored footers.")
     ap.add_argument("--out", required=True, help="assets output directory")
     ap.add_argument("--account", default=None, help="account id, e.g. cs or bio")
     ap.add_argument("--brand", default=None, help="explicit brand file (overrides --account)")
@@ -24,10 +27,15 @@ def main(argv: list[str] | None = None) -> int:
 
     with open(args.post) as f:
         post = json.load(f)
+    paper = None
+    if args.paper:
+        with open(args.paper) as f:
+            paper = json.load(f)
     brand = resolve_brand(account=args.account, brand_path=args.brand)
     try:
         paths = render_text_cards(post, brand, out_dir=args.out,
-                                  start_index=args.start_index, motif_key=args.motif_key)
+                                  start_index=args.start_index, motif_key=args.motif_key,
+                                  paper=paper)
     except Exception as exc:  # noqa: BLE001 — overflow/render errors are recoverable upstream
         print(f"render failed: {exc}", file=sys.stderr)
         return 3

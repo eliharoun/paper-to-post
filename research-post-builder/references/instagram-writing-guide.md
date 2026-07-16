@@ -75,9 +75,13 @@ Also:
 
 Vary the questions per paper — don't mechanically reuse the same seven every time.
 
+## Card footers are auto-generated — leave them empty
+
+**You do not write the `footer` field. Set every card's `footer` to `""`.** At render time the pipeline fills footers deterministically from the paper: the title/hero card gets **no** footer, and every other card shows `Source · Month D, YYYY` (the paper's source/venue and full publication date, e.g. "arXiv · July 15, 2026"). This is computed from `selected_paper.json`, not from anything you type, so a footer you author is ignored and overwritten. Spend zero effort on footers; just leave them as empty strings (the schema still requires the field to be present).
+
 ## Card sequence (7 cards)
 
-1. **`title`** — the front/thumbnail card: headline + source over the branded backdrop. `card_type: "title"`, `heading` = the headline, `footer` = the source line (e.g. "arXiv · 2026" or "Nature Genetics · 2026" — the venue/identifier and year, **not** a preprint label), empty `body`. This shows in the grid, so the headline must work as a standalone thumbnail.
+1. **`title`** — the front/thumbnail card: the headline over the branded backdrop (or hero image). `card_type: "title"`, `heading` = the headline, empty `body`, empty `footer` (the source line is auto-generated, and the title card intentionally gets none). This shows in the grid, so the headline must work as a standalone thumbnail.
 2. **What's actually new?** — the core finding in one crisp idea, with the key specific.
 3. **How does it work / what did they build?** — the mechanism at a useful altitude, naming the actual method/model/technique. Enough to understand the approach; not a reproduction recipe.
 4. **Does it actually work? (the results card)** — **required, and it must contain the paper's concrete numbers**: the headline result, the benchmark, the comparison to prior work. This is the card that proves the post isn't hand-waving. Never skip it.

@@ -18,6 +18,7 @@ from playwright.sync_api import sync_playwright
 
 from scripts.lib.config import BrandConfig
 from scripts.lib.imageutil import assert_dimensions
+from scripts.lib.sourceline import card_footer_line
 from templates.motifs import motif_data_uri
 
 _TEMPLATE_DIR = Path(__file__).parent
@@ -37,8 +38,25 @@ def _inlined_css() -> str:
     return css
 
 
+def _resolve_footer(card: dict, paper: dict | None) -> str:
+    """Deterministic footer, computed from the paper (not the authored JSON).
+
+    When `paper` is provided, the footer is fully controlled here so it never
+    varies with what the language model wrote: the title/hero card gets no
+    footer, and every other card shows 'Source · Month D, YYYY' from the paper.
+    The paper first-page screenshot is inserted at bundle time and is not an
+    authored card, so it is unaffected. When no paper is given (e.g. a bare unit
+    test), fall back to the authored `footer` for backward compatibility.
+    """
+    if paper is None:
+        return card.get("footer", "")
+    if card["card_type"] == "title":
+        return ""
+    return card_footer_line(paper)
+
+
 def _card_html(env: Environment, card: dict, brand: BrandConfig, *,
-               motif_key: str | None = None) -> str:
+               motif_key: str | None = None, paper: dict | None = None) -> str:
     accent = brand.palette.card_type_colors.get(card["card_type"], brand.palette.accent)
     # Font sizes are brand-tunable via `type_scale` in config/brand.<acct>.yml.
     # Sizes below are calibrated for the 1080x1350 canvas per social-carousel
@@ -48,7 +66,8 @@ def _card_html(env: Environment, card: dict, brand: BrandConfig, *,
     common = dict(
         css=_inlined_css(),
         account_name=brand.account_name,
-        heading=card["heading"], body=card.get("body", ""), footer=card.get("footer", ""),
+        heading=card["heading"], body=card.get("body", ""),
+        footer=_resolve_footer(card, paper),
         bg=brand.palette.background, text=brand.palette.text_primary,
         muted=brand.palette.text_muted, accent=accent,
         fs_heading=ts.get("heading_px", 64), fs_body=ts.get("body_px", 50),
@@ -64,12 +83,16 @@ def _card_html(env: Environment, card: dict, brand: BrandConfig, *,
 
 def render_text_cards(
     post: dict, brand: BrandConfig, *, out_dir: Path | str, start_index: int = 1,
-    motif_key: str | None = None,
+    motif_key: str | None = None, paper: dict | None = None,
 ) -> list[Path]:
     """Render cards with card_number >= start_index to JPEGs. Returns ordered paths.
 
     motif_key rotates the front-card backdrop when the brand lists several motifs
-    (pass the run date so a given day is stable)."""
+    (pass the run date so a given day is stable).
+
+    paper (the selected_paper.json dict) drives the deterministic card footers:
+    the title/hero card gets no footer and every other card shows
+    'Source · Month D, YYYY'. When omitted, the authored `footer` is used as-is."""
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     # autoescape for text fields; the CSS is passed through |safe in the template.
@@ -85,7 +108,7 @@ def render_text_cards(
             device_scale_factor=scale,
         )
         for card in cards:
-            html = _card_html(env, card, brand, motif_key=motif_key)
+            html = _card_html(env, card, brand, motif_key=motif_key, paper=paper)
             page.set_content(html, wait_until="load")
             page.evaluate("document.fonts.ready")  # ensure embedded font is applied
             png = page.screenshot()
