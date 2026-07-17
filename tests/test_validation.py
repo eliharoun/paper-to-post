@@ -11,6 +11,7 @@ from scripts.lib.validation import (
     check_readability,
     check_schema,
     check_style,
+    check_substance,
     validate_post,
 )
 
@@ -248,12 +249,89 @@ def test_looks_like_health_content():
     assert looks_like_health_content(basic, post) is False
 
 
+# --- substance (warning-level proxy) ---
+
+def _post_with_content_bodies(bodies: list[str]) -> dict:
+    """A schema-valid post whose content-card bodies are the given strings."""
+    post = json.loads((FIX / "good_post.json").read_text())
+    cards = post["carousel_cards"]
+    # cards[1:-1] are the content cards (title first, source last).
+    for card, body in zip(cards[1:-1], bodies, strict=False):
+        card["body"] = body
+    return post
+
+
+def test_check_substance_passes_when_a_card_has_a_digit():
+    post_dict = _post_with_content_bodies([
+        "Detection rose from 37% to 70% across two bias types.",
+        "The method distills context into a compact KV-cache cartridge.",
+        "It cut inference cost on the standard benchmark.",
+        "It is early work tested on a narrow scope.",
+    ])
+    _, post = check_schema(post_dict, BRAND)
+    assert check_substance(post) == []
+
+
+def test_check_substance_passes_on_spelled_out_number():
+    # A mechanism card with no digit but a spelled-out quantity must not warn.
+    post_dict = _post_with_content_bodies([
+        "Models endorsed their own earlier errors in two-thirds of trials.",
+        "They probed the model's hidden state to flag failures.",
+        "The approach generalized across the evaluated tasks.",
+        "Scope is narrow and the design is observational.",
+    ])
+    _, post = check_schema(post_dict, BRAND)
+    assert check_substance(post) == []
+
+
+def test_check_substance_warns_when_no_content_card_has_a_number():
+    post_dict = _post_with_content_bodies([
+        "The results are impressive and suggest real potential for the field.",
+        "They built a clever new approach that works well in practice.",
+        "It could change how practitioners think about the problem.",
+        "It is early work but the direction looks promising overall.",
+    ])
+    _, post = check_schema(post_dict, BRAND)
+    warnings = check_substance(post)
+    assert warnings and "number" in warnings[0].lower()
+
+
+def test_check_substance_ignores_title_and_source_cards():
+    # A digit living only in the title or source card must NOT satisfy the check;
+    # only content-card bodies count.
+    post_dict = _post_with_content_bodies([
+        "The results are impressive and point to real potential here.",
+        "They built a clever new approach that works well in practice.",
+        "It could change how practitioners approach the whole problem.",
+        "Early work, but the qualitative direction looks promising.",
+    ])
+    post_dict["carousel_cards"][0]["heading"] = "A 5x better way to train models"  # title
+    post_dict["carousel_cards"][-1]["body"] = "Lovelace 2026, arXiv 2406.00001"     # source
+    _, post = check_schema(post_dict, BRAND)
+    assert check_substance(post)  # still warns; title/source digits don't count
+
+
 # --- composer ---
 
 def test_validate_post_passes_good():
     result = validate_post(GOOD_POST, GOOD_PAPER, BRAND, requires_guardrails=False)
     assert result.passed
     assert result.errors == []
+
+
+def test_validate_post_substance_is_warning_not_error():
+    # A vague, number-free post still PASSES the hard gate (warnings never gate),
+    # but surfaces a substance warning for the writer.
+    post_dict = _post_with_content_bodies([
+        "The results are impressive and suggest real potential for the field.",
+        "They built a clever new approach that works well in practice.",
+        "It could change how practitioners think about the problem.",
+        "It is early work but the direction looks promising overall.",
+    ])
+    result = validate_post(post_dict, GOOD_PAPER, BRAND, requires_guardrails=False)
+    assert result.passed          # not gated
+    assert result.errors == []
+    assert any("substance" in w.lower() for w in result.warnings)
 
 
 def test_validate_post_aggregates_errors():

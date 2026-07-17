@@ -52,9 +52,6 @@ are read from the topic's `newsletter` entry when you pass `--topic <id>`; a CLI
 overrides config. The three inbox strings (`--subject`, `--preheader`, `--intro`) are
 **always** LLM-authored per this guide — there's no config default for them.
 
-The notes marked `[TOOL CHANGE]` below documented these as proposals; they are now
-implemented, so treat them as "here's why this option exists," not "to-do."
-
 ---
 
 ## Science-communication ethics (carried over — non-negotiable)
@@ -140,11 +137,10 @@ a short concrete line outperforms a long vague one.
 | `Today's newsletter` | generic, zero curiosity, wastes the open | `Shrink the KV cache 8×` |
 | `A curated selection of this week's most important research findings` | 66 chars, front-loads nothing, reads as filler | `Bio Digest · a 3-agent prover cracks it` |
 
-> `[TOOL CHANGE]` The tool has no subject field. Recommend `newsletter.py` accept a
-> `--subject` arg (and/or write it into the `.md` as a top comment / the `.html` as a
-> commented block for easy copy-paste). The **LLM must author one new string: the subject
-> line**, derived from the day's headlines/summaries (typically the top-ranked paper's
-> `plain_english_headline` compressed to ≤45 chars).
+**You author the subject line** and pass it via `--subject`; it rides along in the `.md`
+as a top comment and in the `.html` as a commented block for easy copy-paste. Derive it
+from the day's headlines/summaries — typically the top-ranked paper's
+`plain_english_headline` compressed to ≤45 chars.
 
 ---
 
@@ -188,12 +184,11 @@ give the reader a reason to open beyond the single hook.
 | `Read our newsletter to learn more about today's papers` | repeats the subject's job, says nothing specific |
 | `LLMs flunk real government data — new benchmark shows…` | just re-states the subject; no new information |
 
-> `[TOOL CHANGE]` Recommend `newsletter.py` accept a `--preheader` arg and inject it as a
-> **hidden preheader div** at the top of the HTML body:
-> `<div style="display:none;max-height:0;overflow:hidden;opacity:0">…</div>` (optionally
-> padded with a zero-width-space run so body text doesn't leak into the preview). The
-> **LLM must author one new string: the preheader (~40–90 chars)** that complements the
-> subject.
+**You author the preheader** and pass it via `--preheader`; the tool injects it as a
+**hidden preheader div** at the top of the HTML body
+(`<div style="display:none;max-height:0;overflow:hidden;opacity:0">…</div>`, padded with a
+zero-width-space run so body text doesn't leak into the preview). Write ~40–90 chars that
+**complement** the subject.
 
 ---
 
@@ -206,14 +201,14 @@ TLDR/Morning Brew formula — a themed, headline-plus-tight-summary list a reade
 
 ### Recommended order
 
-1. **Header** — the account `--title` (H1) + `--date · N papers`. *(Have today.)*
+1. **Header** — the account `--title` (H1) + `--date · N papers`.
 2. **One-line TL;DR intro** — a single sentence orienting the reader to the day's set:
    the theme, or "the one to read first." This is the digest equivalent of Morning Brew's
-   opening line and it materially lifts scan-through. *(New — see `[TOOL CHANGE]`.)*
+   opening line and it materially lifts scan-through. You author it and pass it via `--intro`.
    - e.g. *"Five from CS today, heavy on making LLM agents cheaper and more reliable — start with the failure-prediction probe."*
 3. **N items** (up to 5), each in the fixed shape below, separated by a rule/whitespace.
 4. **Footer** — a single soft footer CTA + (if medical content) the "not medical advice"
-   line. *(Partly new.)*
+   line.
 
 ### The per-item shape (fixed)
 
@@ -247,12 +242,11 @@ papers lives or dies on brevity; TLDR's whole value is the ≤5-minute skim. Gui
 Do **not** try to reproduce the carousel's 5 content cards in the email. The email's job
 is to make the reader *pick* and *click* — the depth lives on the paper (and the carousel).
 
-> `[TOOL CHANGE]` Two optional additions, both requiring **new LLM-authored copy**:
-> (a) a **digest `intro`/TL;DR** string (one sentence) — `newsletter.py` renders it under
-> the header; (b) a per-item **`why_it_matters` line** rendered as a distinct "Why it
-> matters:" line (the field already exists in `post.json`; the tool just doesn't surface
-> it separately today). Both are low-risk, high-value. If you add neither, the current
-> headline + one-sentence-summary + link is a valid minimal digest.
+Two optional touches the tool supports: (a) the **digest `intro`/TL;DR** string (one
+sentence, via `--intro`) renders under the header; (b) the per-item **`why_it_matters`
+line** is rendered as a distinct "Why it matters:" line (read from `post.json`, toggled by
+`show_why_it_matters`). Both are low-risk, high-value. If you author neither, the header +
+per-item headline + one-sentence-summary + link is a valid minimal digest.
 
 ---
 

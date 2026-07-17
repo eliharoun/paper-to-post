@@ -152,6 +152,58 @@ def check_readability(post: GeneratedPost) -> list[str]:
     return errors
 
 
+# Content cards that carry substance (a paper fact). The title/hero card has an
+# empty body by design and the source card is a citation, so neither is expected
+# to carry a quantitative anchor; they are excluded from the substance proxy.
+_NON_SUBSTANCE_CARD_TYPES = {"title", "source"}
+
+# Spelled-out quantities count as anchors too, so a mechanism card that says
+# "two-thirds of trials" or "a threefold increase" isn't falsely flagged. This is
+# deliberately a coarse presence check, not an NLP judgment of "interestingness"
+# (which stays with the writer + rubric) — hence warning-level, never a gate.
+_NUMBER_WORDS = (
+    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+    "eleven", "twelve", "dozen", "hundred", "thousand", "million", "billion",
+    "trillion", "half", "third", "quarter", "twofold", "threefold", "tenfold",
+    "double", "triple", "quadruple",
+)
+_NUMBER_WORD_RE = re.compile(r"\b(" + "|".join(_NUMBER_WORDS) + r")s?\b", re.IGNORECASE)
+# A digit anywhere (covers "37%", "0.43", "2,991", "F1 89.83") — the strongest,
+# least ambiguous substance signal.
+_DIGIT_RE = re.compile(r"\d")
+
+
+def _has_quantitative_anchor(text: str) -> bool:
+    return bool(_DIGIT_RE.search(text) or _NUMBER_WORD_RE.search(text))
+
+
+def check_substance(post: GeneratedPost) -> list[str]:
+    """Warning-level proxy for the guide's #1 failure mode: a card that frames a
+    finding without delivering a specific fact ("the results are impressive").
+
+    Deterministic and coarse by design: it only checks for the presence of a
+    *quantitative anchor* (a digit or a spelled-out number) across the content
+    cards — NOT for named entities or "technical terms", which have no
+    topic-agnostic definition across cs/bio/physics and would false-positive.
+    Post-level, not per-card: warns only when NOT ONE content-card body carries a
+    number, since a single genuinely qualitative mechanism card is legitimate.
+    Returns warnings (never errors) so it informs the writer's judgment without
+    touching the hard gate."""
+    content = [
+        c for c in post.carousel_cards
+        if c.card_type not in _NON_SUBSTANCE_CARD_TYPES and c.body.strip()
+    ]
+    if not content:
+        return []
+    if any(_has_quantitative_anchor(c.body) for c in content):
+        return []
+    return [
+        "substance: no content card carries a specific number — the results card "
+        "should state the paper's headline figure (e.g. a rate, effect size, "
+        "sample, or speedup). Add the concrete fact rather than framing it."
+    ]
+
+
 # Signals that a post is actually about human health/medicine (so a
 # "not medical advice" disclaimer is warranted). Deliberately clinical/disease
 # terms — NOT generic biology ("gene", "genome", "protein", "immune") — so basic
@@ -215,4 +267,6 @@ def validate_post(
     errors += check_caption_link(post, paper)
     errors += check_readability(post)
     errors += check_health(post, paper, requires_guardrails=requires_guardrails)
-    return ValidationResult(passed=not errors, errors=errors)
+    # Warnings inform the writer's judgment but never gate: passed keys on errors only.
+    warnings = check_substance(post)
+    return ValidationResult(passed=not errors, errors=errors, warnings=warnings)

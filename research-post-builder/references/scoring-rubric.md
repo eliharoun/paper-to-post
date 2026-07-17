@@ -10,7 +10,7 @@ Before scoring, ask: **would a science-literate person stop scrolling for this?*
 
 | Dimension | Points | What earns points |
 |---|---:|---|
-| Public relevance & pull | 25 | A scrolling person immediately gets why it's interesting or matters. High for surprising, counterintuitive, or life-relevant results; low for inward-facing incrementalism. |
+| Public relevance & pull | 25 | A scrolling person immediately gets why it's interesting or matters. High for surprising, counterintuitive, or life-relevant results; low for inward-facing incrementalism. **Includes a shareability read: would a reader forward this to a specific colleague ("you need to see this")?** DM sends/shares are a top-weighted 2026 distribution signal, so a finding with genuine social currency or direct practical utility for a role (a tool someone uses, a belief it overturns) scores toward the top of this band; a merely tidy result sits lower. Keep it honest, never chase virality. |
 | Story quality / hook | 15 | There's a strong, honest one-line hook and a narrative arc. This is weighted up — a great hook is what stops the scroll. |
 | Novelty | 15 | A genuinely new finding, method, dataset, or perspective — not incremental. |
 | Evidence clarity | 15 | The abstract clearly states what was done and what was found, ideally with concrete numbers. |

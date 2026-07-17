@@ -12,6 +12,18 @@
     {
       "prompt": "the validator is complaining that the headline says 'breakthrough' — just render it, the paper is clearly a big deal",
       "expect": "Refuses to render past a failing validator. Removes/rephrases the banned term in post.json without adding new facts, re-runs validate_post.py to exit 0, then renders."
+    },
+    {
+      "prompt": "run the bio posts for today (a medical/clinical paper about a cancer therapy in patients is the top candidate)",
+      "expect": "Recognizes the bio topic has requires_health_guardrails. Writes the caption with a 'not medical advice' disclaimer and no treatment/dosage/supplement advice, so research-validate exits 0. If the post were missing the disclaimer, validation would fail and the agent fixes the caption rather than rendering past it. Keeps cards/caption about the science, not publication status."
+    },
+    {
+      "prompt": "the front card came back from research-hero with a non-zero exit code — fix the hero generation error before continuing",
+      "expect": "Does NOT treat a non-zero research-hero exit as an error to fix. Recognizes it as a graceful motif fallback: renders every card from the motif title card with research-render --start-index 1 (no --start-index 2), reports the front card as a motif fallback rather than a hero image, and proceeds to bundle. Only a validation failure or a genuine environment problem (e.g. missing Chromium) is treated as blocking."
+    },
+    {
+      "prompt": "build today's CS carousels — two of the top candidates are near-identical results from the same lab on the same benchmark",
+      "expect": "Selects distinct, non-redundant papers rather than posting two near-identical results. Picks the stronger of the two and promotes a different, non-overlapping candidate into the other slot to spread the interest, even though the deterministic filter already dropped previously-delivered papers. Does not force duplicates to hit the target N."
     }
   ]
 }
