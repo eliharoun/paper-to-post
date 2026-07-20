@@ -92,6 +92,33 @@ def test_contrast_ratio_bounds():
     assert round(_contrast_ratio((255, 255, 255), (255, 255, 255)), 1) == 1.0
 
 
+def test_brand_grade_zero_strength_is_noop():
+    from scripts.lib.hero import _brand_grade
+    src = Image.new("RGB", (40, 50), (120, 90, 60))  # a warm off-brand grey
+    out = _brand_grade(src, bg=(11, 18, 32), accent=(56, 189, 248), strength=0.0)
+    assert out.size == src.size and out.mode == "RGB"
+    assert out.getpixel((10, 10)) == src.getpixel((10, 10))  # unchanged
+
+
+def test_brand_grade_pulls_shadows_toward_brand_bg():
+    # A dark neutral region should move toward the brand background hue (cyan-blue),
+    # i.e. gain blue relative to red — that's what makes the grid cohere.
+    from scripts.lib.hero import _brand_grade
+    src = Image.new("RGB", (40, 50), (40, 40, 40))  # dark neutral
+    bg = (11, 18, 32)  # cs background: b > r
+    out = _brand_grade(src, bg=bg, accent=(56, 189, 248), strength=0.6)
+    r, g, b = out.getpixel((10, 10))
+    assert b > r  # shadow pulled toward the blue-dominant brand bg
+    assert out.size == src.size and out.mode == "RGB"
+
+
+def test_brand_grade_preserves_dimensions_on_real_size():
+    from scripts.lib.hero import _brand_grade
+    src = Image.new("RGB", (1080, 1350), (90, 90, 90))
+    out = _brand_grade(src, bg=(12, 26, 20), accent=(52, 211, 153), strength=0.35)
+    assert out.size == (1080, 1350) and out.mode == "RGB"
+
+
 def test_generate_image_returns_png_bytes(monkeypatch):
     """generate_image extracts inline image bytes from the Gemini response."""
     import io as _io

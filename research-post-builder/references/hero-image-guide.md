@@ -79,6 +79,13 @@ A hero that stops the scroll almost always has these. Work at least two into eve
 
 - **No text, words, letters, numbers, labels, logos, charts, diagrams, flowcharts,
   or UI.** Pure imagery. State this explicitly at the end of the prompt.
+- **Stay on the brand palette.** Color the scene with the topic's own palette (the
+  brand background hue + the single accent from `hero_style.style`) plus neutral
+  grey; avoid secondary saturated hues (stray warm oranges, off-accent teals). A
+  post-generation brand color-grade is applied downstream (`grade_strength` in
+  `config/brand.<acct>.yml`) to pull every hero toward one recognizable colour
+  signature for grid cohesion — so keep imagery on-hue rather than fighting it,
+  and keep the subject's tonal contrast high enough to survive the grade.
 - **Composition for a 4:5 vertical card:** subject in the UPPER HALF,
   filling the frame generously. The **entire bottom ~40% must be empty, dark,
   low-detail negative space** for the headline overlay — describe that region as a

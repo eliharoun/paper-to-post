@@ -18,6 +18,10 @@ brand:
     #   gemini-3-pro-image-preview
     image_model: "gemini-3.1-flash-image-preview"
     aspect_ratio: "4:5"
+    # Post-generation brand color grade for grid cohesion: duotone the hero toward
+    # this account's bg (#0B1220) + accent (#38BDF8). 0.35 keeps the subject clear
+    # while giving every post one recognizable cyan-blue signature. Tune 0.0-0.6.
+    grade_strength: 0.35
     style: >
       Premium editorial 3D render, dark studio void, single cyan (#38BDF8) accent,
       cinematic volumetric lighting, sharp macro detail, sleek modern tech aesthetic,

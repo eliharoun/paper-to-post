@@ -16,7 +16,7 @@ import os
 import time
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageEnhance, ImageFont, ImageOps
 
 from scripts.lib import paths
 from scripts.lib.config import BrandConfig
@@ -118,6 +118,28 @@ def _hard_break_wide_lines(draw: ImageDraw.ImageDraw, lines: list[str],
     return out
 
 
+def _brand_grade(
+    img: Image.Image, *, bg: tuple[int, int, int], accent: tuple[int, int, int],
+    strength: float,
+) -> Image.Image:
+    """Duotone-grade the hero toward the brand's own colours for grid cohesion.
+
+    Maps the image's shadows onto the brand background hue and its highlights onto
+    the accent (via a desaturated grayscale ramp), then blends that back over the
+    original at `strength`. This gives every post one recognizable colour signature
+    — the single biggest driver of a coherent profile grid — while keeping the
+    subject readable. strength 0 = untouched; ~0.35 is a good default. As a bonus,
+    pushing shadows toward the dark brand bg helps the downstream contrast QC.
+    """
+    if strength <= 0:
+        return img
+    img = img.convert("RGB")
+    tamed = ImageEnhance.Color(img).enhance(0.85)          # pull stray hues in first
+    gray = ImageOps.grayscale(tamed)
+    duo = ImageOps.colorize(gray, black=bg, white=accent).convert("RGB")
+    return Image.blend(img, duo, min(1.0, strength))
+
+
 def _fit_cover(img: Image.Image, tw: int, th: int) -> Image.Image:
     """Resize + center-crop so img exactly covers tw x th (no letterboxing)."""
     img = img.convert("RGB")
@@ -188,6 +210,10 @@ def composite_front_card(*, hero_png_path: Path, headline: str, brand: BrandConf
     bg = _hex(brand.palette.background)
 
     card = _fit_cover(Image.open(hero_png_path), W, H)
+    # Brand color-grade for grid cohesion (no-op when grade_strength is 0/unset).
+    grade = getattr(brand.hero_style, "grade_strength", 0.0) if brand.hero_style else 0.0
+    if grade:
+        card = _brand_grade(card, bg=bg, accent=accent, strength=grade)
     draw = ImageDraw.Draw(card)
 
     # Type sizes scale with the canvas (calibrated against the 2160x2700 mockups).

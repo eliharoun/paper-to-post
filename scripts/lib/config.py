@@ -44,6 +44,11 @@ class HeroStyle(_Strict):
     # `style` (HOW it looks). Writer-facing only — steers subject choice, never
     # pasted into the image prompt verbatim. Empty = follow the guide's defaults.
     concept_guidance: str = ""
+    # Post-generation brand color grade applied to the hero image (duotone toward
+    # the brand background+accent). This is the top grid-coherence lever: it gives
+    # every post one recognizable color signature. 0 = off; ~0.35 is a good
+    # default (subject stays readable); >0.6 gets heavy-handed.
+    grade_strength: float = 0.0
 
 
 class BrandConfig(_Strict):
