@@ -339,3 +339,47 @@ def test_validate_post_aggregates_errors():
     result = validate_post(bad, GOOD_PAPER, BRAND, requires_guardrails=False)
     assert not result.passed
     assert len(result.errors) >= 2  # url mismatch + missing caption link
+
+
+# --- engagement fields (share_cta required; takeaway/debate_question advisory) ---
+
+def test_check_engagement_requires_share_cta():
+    from scripts.lib.validation import check_engagement
+    from scripts.lib.models import GeneratedPost
+    post = GeneratedPost(**dict(GOOD_POST, share_cta=""))  # explicitly empty
+    errors, warnings = check_engagement(post)
+    assert any("share_cta" in e for e in errors)
+
+
+def test_check_engagement_share_cta_must_prompt_a_send():
+    from scripts.lib.validation import check_engagement
+    from scripts.lib.models import GeneratedPost
+    post = GeneratedPost(**dict(GOOD_POST, share_cta="This is interesting research."))
+    errors, _ = check_engagement(post)
+    assert any("share_cta" in e for e in errors)  # no send/share/tag verb
+
+
+def test_check_engagement_passes_with_good_fields():
+    from scripts.lib.validation import check_engagement
+    from scripts.lib.models import GeneratedPost
+    post = GeneratedPost(**dict(
+        GOOD_POST,
+        share_cta="Send this to the ML engineer on your team still tuning by hand.",
+        takeaway="A 7B model matched GPT-4 on this benchmark at 1/10th the cost.",
+        debate_question="Would you ship this in production?",
+    ))
+    errors, warnings = check_engagement(post)
+    assert errors == []
+    assert warnings == []
+
+
+def test_check_engagement_warns_on_missing_advisory_fields():
+    from scripts.lib.validation import check_engagement
+    from scripts.lib.models import GeneratedPost
+    post = GeneratedPost(**dict(
+        GOOD_POST, share_cta="Share this with a colleague who works on retrieval.",
+        takeaway="", debate_question=""))
+    errors, warnings = check_engagement(post)
+    assert errors == []  # share_cta present
+    assert any("takeaway" in w for w in warnings)
+    assert any("debate_question" in w for w in warnings)

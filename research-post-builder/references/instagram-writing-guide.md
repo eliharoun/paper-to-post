@@ -161,22 +161,36 @@ scientific and engaging — give the reader real insight and technical depth so 
 feel like a natural continuation. **Never mention preprint / peer-review / publication
 status in the caption.**
 
+Author three discrete fields — `takeaway`, `debate_question`, `share_cta` — and compose the
+caption from them in this evidence-backed order. `share_cta` is **validator-required**;
+`takeaway`/`debate_question` are advisory (present-and-good is strongly encouraged).
+
 Structure, in order:
-1. **Hook line** (≤ ~125 chars, front-loaded — the most important sentence).
-2. **Plain-language summary with depth** — what they found, how it works, and why it
-   matters, in a few short lines. This is where the reader earns insight; use a concrete
-   number or named mechanism, and set up the extra technical depth the cards deliver.
-3. **A genuine scientific nuance** (optional but encouraged) — the interesting *scientific*
-   limit or subtlety that makes the reader smarter: association-not-causation, one cell
-   line, a simulation regime, a surprising trade-off. Frame it as insight into the finding,
-   **not** as "it hasn't been peer reviewed."
-4. **The article link** — the paper's `source_url` as a full `https://…` URL, e.g.
+1. **Hook / portable takeaway** (≤ ~125 chars, front-loaded — the single most important
+   line, and the screenshot line that drives **saves**). Lead with the searchable keyword
+   phrase naturally ("language models", "gene editing") — Instagram indexes caption text
+   for search, so line 1 doubles as SEO. This is the `takeaway` field. Never open with
+   "New study shows…" / "Researchers at…"; lead with the *finding in human terms*.
+2. **Plain-language summary with depth** — what they found, how it works, why it matters,
+   in a few short lines (~150–300 chars of core). Use a concrete number or named mechanism
+   and set up the technical depth the cards deliver.
+3. **A genuine scientific nuance** (encouraged) — the *scientific* limit/subtlety that makes
+   the reader smarter (association-not-causation, one cell line, a trade-off). Not "it
+   hasn't been peer reviewed."
+4. **Debate question** — one short opinion/short-answer question a practitioner would answer
+   in a sentence, to spark **comments** ("Would you ship this in production?"). This is the
+   `debate_question` field. (Binary-vs-open multipliers are unproven — keep it a sensible
+   default, don't over-engineer.)
+5. **The article link** — the paper's `source_url` as a full `https://…` URL, e.g.
    `📄 Paper: https://arxiv.org/abs/2406.xxxxx`. **Mandatory** — the validator rejects a
    caption without it. IG captions aren't clickable, so this is plain-text attribution.
-5. **A CTA that drives saves/shares** — the signals Instagram now weights most. Prompt a
-   **save** ("Save this for later"), a **question** to spark comments, and/or a DM share
-   ("Send this to someone who'd find it interesting").
-6. **Only for genuinely medical/clinical posts** (disease, patients, therapy, diagnosis, cancer, dementia, drugs), a brief **"Not medical advice"** line. This is a safety line, not publication-status talk. Skip it for basic science (evolution, plant biology, pure genomics) — the validator only requires it when the content is actually medical.
+6. **Role-specific share CTA** (`share_cta`, **required**) — the DM-**send** lever, the
+   single strongest 2026 reach signal. Name a *specific role/situation* so the reader
+   thinks of one person: "Send this to the ML engineer still running full-precision
+   inference," not a generic "share this." Must contain a send/share/tag verb (the
+   validator checks). (Role-specificity beating generic is plausible, not proven — but
+   sends matter, so always include one.)
+7. **Only for genuinely medical/clinical posts** (disease, patients, therapy, diagnosis, cancer, dementia, drugs), a brief **"Not medical advice"** line. This is a safety line, not publication-status talk. Skip it for basic science (evolution, plant biology, pure genomics) — the validator only requires it when the content is actually medical.
 
 **Hashtags: 3–5, from the topic bank, in the `hashtags` field (not inline).** Put 3–5 tags
 in the post JSON's `hashtags` field — the pipeline now appends them to the caption at bundle

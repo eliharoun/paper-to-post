@@ -26,10 +26,13 @@ Write `run/post.json` to match this schema exactly. `validate_post.py` enforces 
     }
   ],
   "caption": "string (<=2200 chars)",
-  "hashtags": ["string — aim for 3-5 specific tags; max 8 (Instagram's Rule of 5)"],
+  "hashtags": ["string — 3-5 mid-tail tags from the topic's hashtag_bank; max 8"],
   "alt_text": "string",
   "confidence": "low|medium|high",
-  "hero_image_prompt": "string (optional) — art-director prompt for the front-card hero image"
+  "hero_image_prompt": "string (optional) — art-director prompt for the front-card hero image",
+  "takeaway": "string — portable, screenshot-worthy one-liner (drives saves); advisory",
+  "share_cta": "string — REQUIRED: role-specific 'send this to…' line (drives DM sends)",
+  "debate_question": "string — short opinion question (drives comments); advisory"
 }
 ```
 

@@ -109,6 +109,38 @@ def check_grounding(post: GeneratedPost, paper: dict) -> list[str]:
     return errors
 
 
+_SHARE_VERB_RE = re.compile(r"\b(send|share|tag|forward|dm)\b", re.IGNORECASE)
+
+
+def check_engagement(post: GeneratedPost) -> tuple[list[str], list[str]]:
+    """Enforce the engagement fields. Returns (errors, warnings).
+
+    share_cta is REQUIRED (the DM-send lever, the top 2026 reach signal) and must
+    actually prompt a send/share/tag. takeaway and debate_question are advisory
+    (their engagement multipliers are plausible but unproven), so their absence is
+    a warning, not a gate."""
+    errors: list[str] = []
+    warnings: list[str] = []
+    cta = (post.share_cta or "").strip()
+    if not cta:
+        errors.append("share_cta is required (a role-specific 'send this to…' line)")
+    elif not _SHARE_VERB_RE.search(cta):
+        errors.append(
+            "share_cta must prompt a share (use 'send'/'share'/'tag'), "
+            f"got: {cta[:60]!r}"
+        )
+    if not (post.takeaway or "").strip():
+        warnings.append(
+            "takeaway is empty — add a portable, screenshot-worthy one-liner "
+            "(the finding as a standalone quotable line) to drive saves"
+        )
+    if not (post.debate_question or "").strip():
+        warnings.append(
+            "debate_question is empty — a short opinion question drives comments"
+        )
+    return errors, warnings
+
+
 def check_caption_link(post: GeneratedPost, paper: dict) -> list[str]:
     url = (paper.get("url") or "").strip()
     if url and url not in post.caption:
@@ -267,6 +299,8 @@ def validate_post(
     errors += check_caption_link(post, paper)
     errors += check_readability(post)
     errors += check_health(post, paper, requires_guardrails=requires_guardrails)
+    eng_errors, eng_warnings = check_engagement(post)
+    errors += eng_errors
     # Warnings inform the writer's judgment but never gate: passed keys on errors only.
-    warnings = check_substance(post)
+    warnings = check_substance(post) + eng_warnings
     return ValidationResult(passed=not errors, errors=errors, warnings=warnings)

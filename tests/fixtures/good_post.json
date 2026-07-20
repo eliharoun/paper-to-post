@@ -9,18 +9,67 @@
   "what_they_did": "The team adjusted how the model learns and tested it on three public datasets.",
   "what_they_found": "They report a small but consistent improvement across the tests.",
   "important_context": "This is early work shared as a preprint, so it has not yet been peer reviewed.",
-  "limitations": ["Tested on only three datasets", "Not yet peer reviewed"],
-  "avoid_saying": ["breakthrough", "cure"],
+  "limitations": [
+    "Tested on only three datasets",
+    "Not yet peer reviewed"
+  ],
+  "avoid_saying": [
+    "breakthrough",
+    "cure"
+  ],
   "carousel_cards": [
-    {"card_number": 1, "card_type": "title", "heading": "A small tweak makes AI language models learn better", "body": "", "footer": "arXiv preprint · 2026"},
-    {"card_number": 2, "card_type": "finding", "heading": "What's actually new here?", "body": "A small change to the training routine gave a steady accuracy gain across three standard benchmarks.", "footer": "2/5"},
-    {"card_number": 3, "card_type": "context", "heading": "Why should a practitioner care?", "body": "Cheaper training tweaks that generalize can lower the cost of fine-tuning models in production.", "footer": "3/5"},
-    {"card_number": 4, "card_type": "method", "heading": "What did they actually do?", "body": "They adjusted the learning schedule and compared results on three public datasets against a standard baseline.", "footer": "4/5"},
-    {"card_number": 5, "card_type": "limitation", "heading": "How solid is it?", "body": "It is a preprint, not yet peer reviewed, and tested on only three datasets. Early but promising.", "footer": "5/5"},
-    {"card_number": 6, "card_type": "source", "heading": "Source", "body": "Lovelace and Turing, 2026. Preprint on arXiv.", "footer": "arXiv 2406.00001"}
+    {
+      "card_number": 1,
+      "card_type": "title",
+      "heading": "A small tweak makes AI language models learn better",
+      "body": "",
+      "footer": "arXiv preprint \u00b7 2026"
+    },
+    {
+      "card_number": 2,
+      "card_type": "finding",
+      "heading": "What's actually new here?",
+      "body": "A small change to the training routine gave a steady accuracy gain across three standard benchmarks.",
+      "footer": "2/5"
+    },
+    {
+      "card_number": 3,
+      "card_type": "context",
+      "heading": "Why should a practitioner care?",
+      "body": "Cheaper training tweaks that generalize can lower the cost of fine-tuning models in production.",
+      "footer": "3/5"
+    },
+    {
+      "card_number": 4,
+      "card_type": "method",
+      "heading": "What did they actually do?",
+      "body": "They adjusted the learning schedule and compared results on three public datasets against a standard baseline.",
+      "footer": "4/5"
+    },
+    {
+      "card_number": 5,
+      "card_type": "limitation",
+      "heading": "How solid is it?",
+      "body": "It is a preprint, not yet peer reviewed, and tested on only three datasets. Early but promising.",
+      "footer": "5/5"
+    },
+    {
+      "card_number": 6,
+      "card_type": "source",
+      "heading": "Source",
+      "body": "Lovelace and Turing, 2026. Preprint on arXiv.",
+      "footer": "arXiv 2406.00001"
+    }
   ],
   "caption": "A small training tweak helped AI language models do better on standard tests. It is early work and not yet peer reviewed. Read the paper: https://arxiv.org/abs/2406.00001 #ScienceNews #AI #MachineLearning",
-  "hashtags": ["#ScienceNews", "#AI", "#MachineLearning"],
+  "hashtags": [
+    "#ScienceNews",
+    "#AI",
+    "#MachineLearning"
+  ],
   "alt_text": "Text card summarizing a study on improving language model training.",
-  "confidence": "medium"
+  "confidence": "medium",
+  "takeaway": "Detection of biased outputs rose from 37% to 70% with the new method.",
+  "share_cta": "Send this to the ML engineer on your team auditing model bias.",
+  "debate_question": "Would you trust this to gate a production model?"
 }

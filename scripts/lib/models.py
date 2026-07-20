@@ -73,3 +73,11 @@ class GeneratedPost(BaseModel):
     alt_text: str
     confidence: Confidence
     hero_image_prompt: str | None = None
+    # Engagement fields composed into the caption (see instagram-writing-guide).
+    # share_cta drives DM sends (the top 2026 reach signal) and is validator-required;
+    # takeaway (a portable, screenshot-worthy one-liner) and debate_question (a
+    # short comment prompt) are advisory. Optional in the schema for back-compat;
+    # check_engagement enforces share_cta and warns on the other two.
+    takeaway: str = ""
+    share_cta: str = ""
+    debate_question: str = ""
