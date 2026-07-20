@@ -72,6 +72,43 @@ def test_gather_raises_when_all_sources_fail(tmp_path, monkeypatch, config_dir):
                  topics_path=str(config_dir / "topics.yml"))
 
 
+def test_gather_warns_when_a_source_returns_zero(tmp_path, monkeypatch, config_dir, capsys):
+    # A source that fetches successfully but returns 0 papers is degraded coverage;
+    # gather must surface it in a WARNING (it counts as "ok" but contributed nothing).
+    cfg = load_topics(config_dir / "topics.yml")
+    cs = next(t for t in cfg.topics if t.id == "swe_ml_ai")
+
+    def some_empty(name, src, since, until):
+        if name == "openalex":
+            return []  # succeeds but empty
+        return [_paper(f"{name}1", f"{name} machine learning llm")]
+
+    monkeypatch.setattr(g, "_fetch_source", some_empty)
+    g.gather(cs, "2026-07-06", "2026-07-08", str(tmp_path),
+             topics_path=str(config_dir / "topics.yml"))
+    err = capsys.readouterr().err
+    assert "WARNING" in err and "openalex" in err
+
+
+def test_gather_warns_when_primary_source_empty(tmp_path, monkeypatch, config_dir, capsys):
+    # arxiv is the CS topic's primary (first configured) source. If it comes back
+    # empty, the pool is degraded even though other sources ran — flag it loudly.
+    cfg = load_topics(config_dir / "topics.yml")
+    cs = next(t for t in cfg.topics if t.id == "swe_ml_ai")
+    assert cs.sources.active()[0] == "arxiv"  # guard the premise
+
+    def arxiv_empty(name, src, since, until):
+        if name == "arxiv":
+            return []
+        return [_paper(f"{name}1", f"{name} machine learning llm")]
+
+    monkeypatch.setattr(g, "_fetch_source", arxiv_empty)
+    g.gather(cs, "2026-07-06", "2026-07-08", str(tmp_path),
+             topics_path=str(config_dir / "topics.yml"))
+    err = capsys.readouterr().err
+    assert "primary" in err.lower() and "arxiv" in err
+
+
 def test_main_unknown_topic_exits_2(tmp_path):
     rc = g.main(["--topic", "nope", "--out", str(tmp_path)])
     assert rc == 2

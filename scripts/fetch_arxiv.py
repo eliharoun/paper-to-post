@@ -20,10 +20,26 @@ ARXIV_PAGE_DELAY_S = 3.0
 # Safety ceiling on pages so a huge/misconfigured window can't loop forever.
 # 30 pages x 100 = 3000 papers, well above a normal multi-day window.
 ARXIV_MAX_PAGES = 30
+# arXiv's export API tarpits under load: a throttled connection opens but never
+# sends the body. Abandon such an attempt quickly (short read timeout) and re-roll
+# more times with jittered backoff, rather than burning the shared 30s default.
+ARXIV_TIMEOUT_S = 10.0
+ARXIV_MAX_ATTEMPTS = 5
 
 _ARXIV_ID_RE = re.compile(r"arxiv\.org/abs/(?P<id>.+?)(v\d+)?$")
 
-ARXIV_API = "http://export.arxiv.org/api/query"
+# arXiv 301-redirects http->https and serves an empty body on the redirect
+# response itself; request https directly so a redirect-stripped body can't be
+# mistaken for an empty result window.
+# Try hosts in order: if the primary host errors (throttle, 5xx), fail over to
+# the next before giving up. `arxiv.org/api` redirects to export.arxiv.org but
+# can resolve/route differently under a partial outage, so it's a cheap backup.
+ARXIV_API_HOSTS = [
+    "https://export.arxiv.org/api/query",
+    "https://arxiv.org/api/query",
+]
+# Back-compat alias: the primary host. Kept because callers/tests reference it.
+ARXIV_API = ARXIV_API_HOSTS[0]
 
 
 def _arxiv_id_from_url(url: str) -> str | None:
@@ -35,6 +51,17 @@ def _to_date(struct_time) -> date | None:
     if not struct_time:
         return None
     return datetime(*struct_time[:6]).date()
+
+
+def _total_results(feed) -> int | None:
+    """Read arXiv's opensearch:totalResults from a parsed feed, or None if absent."""
+    raw = feed.feed.get("opensearch_totalresults")
+    if raw is None:
+        return None
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        return None
 
 
 def parse_arxiv_atom(atom_xml: str) -> list[PaperInput]:
@@ -94,6 +121,23 @@ def build_arxiv_query(
     }
 
 
+def _get_page(params: dict) -> str:
+    """Fetch one arXiv API page, failing over across hosts. Raises FetchError if all fail."""
+    last: FetchError | None = None
+    for host in ARXIV_API_HOSTS:
+        try:
+            return get_text(
+                host,
+                params=params,
+                timeout=ARXIV_TIMEOUT_S,
+                max_attempts=ARXIV_MAX_ATTEMPTS,
+            )
+        except FetchError as exc:
+            last = exc
+            print(f"arxiv: host {host} failed ({exc}); trying next", file=sys.stderr)
+    raise last if last else FetchError("arxiv: no hosts configured")
+
+
 def fetch_arxiv(
     categories: list[str],
     since: str,
@@ -114,7 +158,19 @@ def fetch_arxiv(
         params = build_arxiv_query(
             categories, since, until, start=page * ARXIV_PAGE_SIZE, max_results=ARXIV_PAGE_SIZE
         )
-        batch = parse_arxiv_atom(get_text(ARXIV_API, params=params))
+        atom = _get_page(params)
+        batch = parse_arxiv_atom(atom)
+        if not batch and page == 0:
+            # First page came back with zero entries. If arXiv reports a nonzero
+            # totalResults, the body was stripped (throttle / redirect) rather than
+            # genuinely empty — raise so gather logs a failure instead of silently
+            # recording "arxiv -> 0 papers". A real totalResults of 0 is allowed.
+            total = _total_results(feedparser.parse(atom))
+            if total:
+                raise FetchError(
+                    f"arxiv returned 0 entries but totalResults={total} "
+                    "(throttled or stripped response)"
+                )
         papers.extend(batch)
         if max_results is not None and len(papers) >= max_results:
             return papers[:max_results]

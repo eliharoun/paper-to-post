@@ -83,8 +83,11 @@ def gather(
     if not active:
         raise RuntimeError(f"topic '{topic.id}' configures no sources")
 
+    primary = active[0]  # sources are in a stable priority order; first is primary
     all_papers: list[dict] = []
     ok = 0
+    failed: list[str] = []      # sources that raised (rate-limit, bad payload)
+    empty: list[str] = []       # sources that succeeded but returned 0 papers
     for name in active:
         src = getattr(topic.sources, name)
         try:
@@ -93,16 +96,39 @@ def gather(
             # Resilient by design: one source failing (rate-limit, bad payload,
             # malformed XML/JSON) is logged and skipped, never fatal.
             print(f"gather: source '{name}' failed: {exc} (skipping)", file=sys.stderr)
+            failed.append(name)
             continue
         rows = [p.model_dump(mode="json") for p in papers]
         with open(f"{out_dir}/raw_{name}.json", "w") as f:
             json.dump(rows, f, indent=2, default=str)
         all_papers.extend(rows)
         ok += 1
+        if not rows:
+            empty.append(name)
         print(f"gather: {name} -> {len(rows)} papers")
 
     if ok == 0:
         raise RuntimeError(f"topic '{topic.id}': all {len(active)} sources failed")
+
+    # Surface degraded coverage: a run can succeed (exit 0) on a thin pool when a
+    # source silently contributes nothing. Make that visible so a thin day isn't
+    # mistaken for "nothing was published", and flag it hard when the topic's
+    # PRIMARY source is the one that came up empty/failed.
+    degraded = failed + empty
+    if degraded:
+        print(
+            f"gather: WARNING degraded coverage for '{topic.id}': "
+            f"{', '.join(sorted(set(degraded)))} contributed no papers "
+            f"({ok}/{len(active)} sources returned results)",
+            file=sys.stderr,
+        )
+    if primary in degraded:
+        print(
+            f"gather: WARNING the primary source '{primary}' for '{topic.id}' "
+            "returned no papers; the candidate pool is likely degraded "
+            "(consider re-running once the source recovers)",
+            file=sys.stderr,
+        )
 
     deduped = dedupe_papers(all_papers)
     papers_path = f"{out_dir}/papers.json"

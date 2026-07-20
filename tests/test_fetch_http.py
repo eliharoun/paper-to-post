@@ -70,3 +70,31 @@ def test_post_text_raises_on_4xx():
     t = httpx.MockTransport(lambda req: httpx.Response(401, text="no"))
     with pytest.raises(FetchError):
         post_text("https://example.com/token", data={"a": "b"}, transport=t)
+
+
+def test_get_text_retries_transient_timeout_then_succeeds():
+    # A read timeout on the first attempt should be retried, not fatal, so a
+    # tarpitting server that eventually answers still yields a body.
+    calls = {"n": 0}
+
+    def handler(request):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise httpx.ReadTimeout("tarpit", request=request)
+        return httpx.Response(200, text="ok")
+
+    transport = httpx.MockTransport(handler)
+    out = get_text(
+        "https://example.com/x", transport=transport, max_attempts=3, timeout=1.0
+    )
+    assert out == "ok"
+    assert calls["n"] == 2
+
+
+def test_get_text_uses_jittered_backoff():
+    # Retries must be de-synchronized (jitter) so parallel callers don't hammer a
+    # throttled API in lockstep. The retry wait exposes randomness.
+    import inspect
+
+    src = inspect.getsource(get_text)
+    assert "wait_random_exponential" in src
