@@ -36,6 +36,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="override the hero prompt (else read hero_image_prompt from post)")
     ap.add_argument("--hero-out", default=None,
                     help="path to save the raw hero PNG (default: <out>/../run/hero.png)")
+    ap.add_argument("--episode", type=int, default=None,
+                    help="series edition number for the front-card eyebrow (if enabled)")
     args = ap.parse_args(argv)
 
     load_env()
@@ -71,7 +73,7 @@ def main(argv: list[str] | None = None) -> int:
         hero_out.write_bytes(png_bytes)
         card = hero.composite_front_card(
             hero_png_path=hero_out, headline=headline, brand=brand,
-            out_path=assets / "card_01.jpg",
+            out_path=assets / "card_01.jpg", episode=args.episode,
         )
     except hero.HeroImageError as exc:
         print(f"hero generation failed: {exc}; falling back to motif", file=sys.stderr)

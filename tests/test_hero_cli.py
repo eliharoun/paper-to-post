@@ -75,7 +75,7 @@ def test_cli_uses_title_card_heading_not_plain_english_headline(tmp_path, monkey
     monkeypatch.setattr(rh.hero, "build_client", lambda: object())
     monkeypatch.setattr(rh.hero, "generate_image", lambda *a, **k: _fake_png_bytes())
 
-    def _capture(*, hero_png_path, headline, brand, out_path):
+    def _capture(*, hero_png_path, headline, brand, out_path, **kwargs):
         seen["headline"] = headline
         return out_path
 

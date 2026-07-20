@@ -23,6 +23,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="skip cards below this number (use 2 if card 1 is a screenshot)")
     ap.add_argument("--motif-key", default=None,
                     help="rotation key for the front-card backdrop, e.g. the run date")
+    ap.add_argument("--episode", type=int, default=None,
+                    help="series edition number for the title-card eyebrow (if enabled)")
     args = ap.parse_args(argv)
 
     with open(args.post) as f:
@@ -35,7 +37,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         paths = render_text_cards(post, brand, out_dir=args.out,
                                   start_index=args.start_index, motif_key=args.motif_key,
-                                  paper=paper)
+                                  paper=paper, episode=args.episode)
     except Exception as exc:  # noqa: BLE001 — overflow/render errors are recoverable upstream
         print(f"render failed: {exc}", file=sys.stderr)
         return 3

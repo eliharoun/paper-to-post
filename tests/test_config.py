@@ -14,6 +14,25 @@ def test_load_brand(config_dir):
     assert b.palette.card_type_colors["limitation"] == "#F87171"
 
 
+def test_eyebrow_label_plain_when_episode_off(config_dir):
+    b = load_brand(config_dir / "brand.cs.yml")
+    # explicitly episode-off, independent of the shipped default
+    b = b.model_copy(update={"show_episode_number": False})
+    assert b.eyebrow_label(None) == b.account_name.upper()
+    assert b.eyebrow_label(142) == b.account_name.upper()  # off unless enabled
+
+
+def test_eyebrow_label_with_episode(config_dir):
+    b = load_brand(config_dir / "brand.cs.yml")
+    b = b.model_copy(update={"show_episode_number": True, "series_name": "Daily CS Bits"})
+    assert b.eyebrow_label(142) == "DAILY CS BITS · #142"
+    # series_name defaults to account_name when unset
+    b2 = b.model_copy(update={"series_name": ""})
+    assert b2.eyebrow_label(7).endswith("· #7")
+    # no episode passed -> falls back to the plain label even when enabled
+    assert b.eyebrow_label(None) == "DAILY CS BITS"
+
+
 def test_brand_rejects_unknown_key():
     """A typo'd brand key must raise, not silently drop (extra='forbid')."""
     import pytest

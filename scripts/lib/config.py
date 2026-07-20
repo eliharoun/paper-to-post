@@ -67,6 +67,12 @@ class BrandConfig(_Strict):
     palette: Palette
     logo_path: str = ""
     hero_style: HeroStyle | None = None
+    # Series identity on the front card. When show_episode_number is true, the
+    # title-card eyebrow reads "<series_name> · #<edition>" (series_name defaults
+    # to account_name). The edition number comes from the ledger (per-account
+    # count of delivery days) and is passed in at render time.
+    series_name: str = ""
+    show_episode_number: bool = False
 
     @field_validator("type_scale")
     @classmethod
@@ -78,6 +84,18 @@ class BrandConfig(_Strict):
                 f"allowed: {sorted(_ALLOWED_TYPE_SCALE_KEYS)}"
             )
         return v
+
+    def eyebrow_label(self, episode: int | None = None) -> str:
+        """The uppercase front-card eyebrow, optionally with the series edition.
+
+        Plain account name unless `show_episode_number` is set AND an `episode` is
+        given, in which case it reads '<SERIES_NAME> · #<episode>'. series_name
+        defaults to account_name. Shared by both front-card render paths so the
+        motif card and the hero card format the eyebrow identically."""
+        base = (self.series_name or self.account_name).upper()
+        if self.show_episode_number and episode is not None:
+            return f"{base} · #{episode}"
+        return base
 
     def resolve_motif(self, key: str | None = None) -> str:
         """Pick one motif. If `motif` is a list, rotate deterministically by `key`

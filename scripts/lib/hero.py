@@ -196,7 +196,7 @@ def _draw_text_with_shadow(xy, text, *, draw: ImageDraw.ImageDraw, font, fill,
 
 
 def composite_front_card(*, hero_png_path: Path, headline: str, brand: BrandConfig,
-                         out_path: Path) -> Path:
+                         out_path: Path, episode: int | None = None) -> Path:
     """Composite the hybrid front card from a hero PNG. Returns out_path.
 
     Layout (bottom-anchored, image-independent legibility):
@@ -304,7 +304,7 @@ def composite_front_card(*, hero_png_path: Path, headline: str, brand: BrandConf
     # Accent bar + eyebrow label + headline, each drawn with a soft dark halo so
     # they stay legible on ANY background (invisible on the dark imagery we
     # normally get; the safety net when a hero happens to be light behind text).
-    label = brand.account_name.upper()
+    label = brand.eyebrow_label(episode)
     halo = max(2, int(3 * scale / 2))
     draw.rectangle([margin, bar_y, margin + int(90 * scale / 2), bar_y + bar_h], fill=accent)
     _draw_text_with_shadow((margin, eyebrow_y), label, draw=draw, font=f_eye,

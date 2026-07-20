@@ -7,7 +7,8 @@ _SCHEMA = """
 CREATE TABLE IF NOT EXISTS delivered_papers (
     paper_key      TEXT PRIMARY KEY,
     delivered_date TEXT NOT NULL,
-    post_id        TEXT
+    post_id        TEXT,
+    account        TEXT
 );
 """
 
@@ -27,6 +28,10 @@ class Ledger:
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         with self._conn() as conn:
             conn.executescript(_SCHEMA)
+            # Migrate older DBs created before the `account` column existed.
+            cols = {r[1] for r in conn.execute("PRAGMA table_info(delivered_papers)")}
+            if "account" not in cols:
+                conn.execute("ALTER TABLE delivered_papers ADD COLUMN account TEXT")
 
     def _conn(self) -> sqlite3.Connection:
         # Parallel subagents each open the ledger and write concurrently at bundle
@@ -45,14 +50,29 @@ class Ledger:
             ).fetchone()
         return row is not None
 
-    def mark_delivered(self, paper_key: str, delivered_date: str, post_id: str) -> None:
+    def mark_delivered(
+        self, paper_key: str, delivered_date: str, post_id: str, account: str | None = None
+    ) -> None:
         with self._conn() as conn:
             conn.execute(
                 "INSERT OR IGNORE INTO delivered_papers "
-                "(paper_key, delivered_date, post_id) VALUES (?, ?, ?)",
-                (paper_key, delivered_date, post_id),
+                "(paper_key, delivered_date, post_id, account) VALUES (?, ?, ?, ?)",
+                (paper_key, delivered_date, post_id, account),
             )
             conn.commit()
+
+    def edition_number(self, account: str, today: str) -> int:
+        """Per-account edition number for `today` = (distinct prior delivery days
+        for this account) + 1. All posts delivered on the same day share the number,
+        and it increments once per day the account actually posts. NULL-account rows
+        (pre-migration) never count toward any account."""
+        with self._conn() as conn:
+            (n,) = conn.execute(
+                "SELECT COUNT(DISTINCT delivered_date) FROM delivered_papers "
+                "WHERE account = ? AND delivered_date < ?",
+                (account, today),
+            ).fetchone()
+        return int(n) + 1
 
     def seen_keys(self) -> set[str]:
         with self._conn() as conn:

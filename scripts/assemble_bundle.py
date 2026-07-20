@@ -22,6 +22,7 @@ def run(
     ledger: Ledger,
     delivered_date: str,
     screenshot_path: str | None = None,
+    account: str | None = None,
 ) -> dict:
     """Write the bundle to out_dir and mark the paper delivered. Returns a manifest.
 
@@ -80,7 +81,8 @@ def run(
     # 5. record delivered LAST — only after the full bundle (incl. manifest) is on
     #    disk. If a crash happens earlier, the paper stays re-postable rather than
     #    being burned from the pool with no usable output.
-    ledger.mark_delivered(key, delivered_date, post_id=post.get("paper_id", key))
+    ledger.mark_delivered(key, delivered_date, post_id=post.get("paper_id", key),
+                          account=account)
     return manifest
 
 
@@ -94,13 +96,15 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--screenshot", default=None,
                     help="paper first-page image to place second-to-last (before source)")
     ap.add_argument("--date", required=True, help="delivered date YYYY-MM-DD")
+    ap.add_argument("--account", default=None,
+                    help="account id (cs/bio); recorded in the ledger for per-account editions")
     args = ap.parse_args(argv)
 
     ledger = Ledger(args.ledger) if args.ledger else Ledger(paths.ledger_path())
     manifest = run(
         post_path=args.post, paper_path=args.paper, assets_dir=args.assets_dir,
         out_dir=args.out, ledger=ledger, delivered_date=args.date,
-        screenshot_path=args.screenshot,
+        screenshot_path=args.screenshot, account=args.account,
     )
     print(json.dumps(manifest, indent=2))
     return 0

@@ -56,7 +56,8 @@ def _resolve_footer(card: dict, paper: dict | None) -> str:
 
 
 def _card_html(env: Environment, card: dict, brand: BrandConfig, *,
-               motif_key: str | None = None, paper: dict | None = None) -> str:
+               motif_key: str | None = None, paper: dict | None = None,
+               episode: int | None = None) -> str:
     accent = brand.palette.card_type_colors.get(card["card_type"], brand.palette.accent)
     # Font sizes are brand-tunable via `type_scale` in config/brand.<acct>.yml.
     # Sizes below are calibrated for the 1080x1350 canvas per social-carousel
@@ -65,7 +66,10 @@ def _card_html(env: Environment, card: dict, brand: BrandConfig, *,
     ts = brand.type_scale
     common = dict(
         css=_inlined_css(),
-        account_name=brand.account_name,
+        # The title card shows the series eyebrow (with episode #); content cards
+        # keep the plain account name.
+        account_name=(brand.eyebrow_label(episode) if card["card_type"] == "title"
+                      else brand.account_name),
         heading=card["heading"], body=card.get("body", ""),
         footer=_resolve_footer(card, paper),
         bg=brand.palette.background, text=brand.palette.text_primary,
@@ -83,7 +87,7 @@ def _card_html(env: Environment, card: dict, brand: BrandConfig, *,
 
 def render_text_cards(
     post: dict, brand: BrandConfig, *, out_dir: Path | str, start_index: int = 1,
-    motif_key: str | None = None, paper: dict | None = None,
+    motif_key: str | None = None, paper: dict | None = None, episode: int | None = None,
 ) -> list[Path]:
     """Render cards with card_number >= start_index to JPEGs. Returns ordered paths.
 
@@ -120,7 +124,8 @@ def render_text_cards(
                 device_scale_factor=scale,
             )
             for card in cards:
-                html = _card_html(env, card, brand, motif_key=motif_key, paper=paper)
+                html = _card_html(env, card, brand, motif_key=motif_key, paper=paper,
+                              episode=episode)
                 page.set_content(html, wait_until="load")
                 page.evaluate("document.fonts.ready")  # ensure embedded font is applied
                 png = page.screenshot()
