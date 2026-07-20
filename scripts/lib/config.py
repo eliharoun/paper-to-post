@@ -251,6 +251,9 @@ class TopicConfig(_Strict):
     sources: TopicSources = TopicSources()
     publish: list[PublishTarget] = []
     trends: TrendsConfig = TrendsConfig()
+    # Curated mid-tail hashtags (10K-500K posts) for this topic; the writer picks
+    # 3-5 per post from this bank. Advisory — empty means the writer free-forms.
+    hashtag_bank: list[str] = []
 
     def publish_targets(self, channel: str | None = None) -> list[PublishTarget]:
         """Enabled publish targets, optionally filtered to one channel."""

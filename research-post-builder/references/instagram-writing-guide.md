@@ -178,11 +178,16 @@ Structure, in order:
    ("Send this to someone who'd find it interesting").
 6. **Only for genuinely medical/clinical posts** (disease, patients, therapy, diagnosis, cancer, dementia, drugs), a brief **"Not medical advice"** line. This is a safety line, not publication-status talk. Skip it for basic science (evolution, plant biology, pure genomics) — the validator only requires it when the content is actually medical.
 
-**Hashtags: 3–5, not a wall.** Instagram's own guidance is the "Rule of 5" — 3–5 *specific,
-relevant* hashtags, not 30 broad ones. Discovery now comes from **keywords in the caption
-text** (Instagram indexes and searches caption/alt text), so write naturally with the terms
-a curious person would search ("gene editing", "battery storage", "language models") rather
-than stuffing tags. Cap 5; the schema allows up to 8 but fewer-and-relevant wins.
+**Hashtags: 3–5, from the topic bank, in the `hashtags` field (not inline).** Put 3–5 tags
+in the post JSON's `hashtags` field — the pipeline now appends them to the caption at bundle
+time, so **do not also inline them in the caption prose** (that would double them). In 2026
+hashtags are a **classification/search signal, not a reach lever**: pick **mid-tail** tags
+(≈10K–500K posts) from the topic's `hashtag_bank` in `config/topics.yml`, where a small
+account can actually rank — avoid broad >2M tags like `#AI`/`#science`. You may add one
+paper-specific tag beyond the bank. Real discovery comes from **keywords in the caption
+text** (Instagram indexes caption/alt text), so write line 1 naturally with the term a
+curious person would search ("gene editing", "language models"). Cap 5; schema allows 8 but
+fewer-and-relevant wins.
 
 Caption ≤ 2,200 chars — let it breathe for the explanation, but the hook + key takeaway
 must read before the "…more" fold. The same `source_url` must appear in both the `caption`

@@ -57,7 +57,7 @@ def run(
     #    is `url` on candidates but the post JSON / schema uses `source_url`; accept
     #    either so the link-guarantee never silently breaks on a field-name drift.
     paper_url = paper.get("url") or paper.get("source_url") or post.get("source_url", "")
-    caption = compose_caption(post.get("caption", ""), paper_url)
+    caption = compose_caption(post.get("caption", ""), paper_url, post.get("hashtags"))
     (out / "caption.txt").write_text(caption)
 
     # 3. alt_text.txt

@@ -22,6 +22,30 @@ def test_compose_caption_noop_when_no_url():
     assert compose_caption(caption, "") == caption
 
 
+def test_compose_caption_appends_hashtags_from_field():
+    caption = "A finding with no link."
+    out = compose_caption(caption, "https://arxiv.org/abs/2406.1",
+                          hashtags=["AIresearch", "machinelearning"])
+    assert "#AIresearch #machinelearning" in out
+    # normalizes bare tags to #-prefixed
+    assert "#AIresearch" in out and "AIresearch #" not in out.replace("#AIresearch", "")
+
+
+def test_compose_caption_normalizes_and_dedupes_hashtags():
+    # tags already inline in the caption prose must NOT be doubled
+    caption = "A finding. #AIresearch already here."
+    out = compose_caption(caption, "", hashtags=["#AIresearch", "LLM"])
+    assert out.count("#AIresearch") == 1  # not duplicated
+    assert "#LLM" in out
+
+
+def test_compose_caption_no_hashtags_is_unchanged_behaviour():
+    caption = "A finding."
+    # None / empty list => no trailing hashtag block
+    assert compose_caption(caption, "", hashtags=None) == caption
+    assert compose_caption(caption, "", hashtags=[]) == caption
+
+
 def test_ordered_card_paths_sorts_numerically(tmp_path):
     # create out-of-order files incl. double digits to prove numeric (not lexical) sort
     for name in ["card_02.jpg", "card_10.jpg", "card_01.jpg", "notes.txt"]:

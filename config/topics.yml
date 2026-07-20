@@ -101,6 +101,12 @@ topics:
             listing: hot
             timespan: week
             bump_cap: 0.3
+    # Curated mid-tail hashtags (classification/search signal, not raw reach). The
+    # writer picks 3-5 per post; keep tags in the 10K-500K post range, avoid >2M
+    # broad tags (#AI) where a small account can't rank.
+    hashtag_bank: ["#AIresearch", "#machinelearning", "#deeplearning", "#LLM",
+                   "#computervision", "#airesearchpapers", "#mlresearch",
+                   "#neuralnetworks", "#aiengineering", "#techresearch"]
 
   - id: bio_genetics_biomed
     enabled: true
@@ -187,3 +193,9 @@ topics:
             listing: hot
             timespan: week
             bump_cap: 0.3
+    # Curated mid-tail hashtags (classification/search signal, not raw reach). The
+    # writer picks 3-5 per post; keep tags in the 10K-500K post range, avoid >2M
+    # broad tags (#science, #biology) where a small account can't rank.
+    hashtag_bank: ["#genetics", "#neuroscience", "#biomedical", "#genomics",
+                   "#molecularbiology", "#cancerresearch", "#immunology",
+                   "#biotech", "#sciencepapers", "#cellbiology"]

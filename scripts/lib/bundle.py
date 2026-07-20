@@ -6,17 +6,30 @@ from pathlib import Path
 _CARD_RE = re.compile(r"card_(\d+)\.jpg$")
 
 
-def compose_caption(caption: str, source_url: str) -> str:
-    """Return a caption guaranteed to contain the article link.
+def compose_caption(
+    caption: str, source_url: str, hashtags: list[str] | None = None
+) -> str:
+    """Return a caption guaranteed to contain the article link, plus hashtags.
 
     Validation (Phase 4) already requires the link, but this is a defensive
     backstop so a bundle is never shipped with a linkless caption.
+
+    `hashtags` is the post's structured `hashtags` field: each is normalized to a
+    leading '#' and appended as a trailing block, skipping any already inline in
+    the caption prose (so a writer who inlined tags isn't doubled). Without it the
+    structured field never reached Instagram — only manually-inlined tags did.
     """
-    if not source_url:
-        return caption
-    if source_url in caption:
-        return caption
-    return f"{caption}\n\n🔗 Read the paper: {source_url}"
+    body = caption
+    if source_url and source_url not in caption:
+        body = f"{caption}\n\n🔗 Read the paper: {source_url}"
+    if hashtags:
+        norm = [t if t.startswith("#") else f"#{t}" for t in hashtags if t.strip()]
+        # skip tags already present in the caption prose (case-insensitive)
+        low = body.lower()
+        fresh = [t for t in norm if t.lower() not in low]
+        if fresh:
+            body = f"{body}\n\n{' '.join(fresh)}"
+    return body
 
 
 def ordered_card_paths(assets_dir: Path | str) -> list[Path]:
