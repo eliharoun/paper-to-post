@@ -29,7 +29,14 @@ class Ledger:
             conn.executescript(_SCHEMA)
 
     def _conn(self) -> sqlite3.Connection:
-        return sqlite3.connect(self.db_path)
+        # Parallel subagents each open the ledger and write concurrently at bundle
+        # time. WAL lets readers and a single writer proceed without blocking, and
+        # a busy timeout makes competing writers wait for the lock instead of
+        # failing immediately with SQLITE_BUSY (which would silently drop a mark).
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=30000")
+        return conn
 
     def is_delivered(self, paper_key: str) -> bool:
         with self._conn() as conn:

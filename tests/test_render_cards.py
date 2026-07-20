@@ -10,6 +10,21 @@ BRAND = load_brand_for_account("cs")
 GOOD_POST = json.loads((Path(__file__).parent / "fixtures" / "good_post.json").read_text())
 
 
+def test_render_raises_when_no_cards_match_start_index(tmp_path):
+    # If start_index skips every card (or carousel_cards is empty), the render must
+    # raise rather than return [] with exit 0 — an empty render otherwise flows into
+    # an empty (broken) bundle that still gets marked delivered.
+    from templates.render import render_text_cards
+    with pytest.raises(ValueError, match="no cards"):
+        render_text_cards(GOOD_POST, BRAND, out_dir=tmp_path, start_index=99)
+
+
+def test_render_raises_on_empty_carousel(tmp_path):
+    from templates.render import render_text_cards
+    with pytest.raises(ValueError, match="no cards"):
+        render_text_cards({"carousel_cards": []}, BRAND, out_dir=tmp_path)
+
+
 @pytest.mark.browser
 def test_render_text_cards_writes_correct_size(tmp_path):
     from templates.render import render_text_cards

@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from scripts.assemble_bundle import run
 from scripts.lib.store import Ledger
 
@@ -66,6 +68,54 @@ def test_run_marks_ledger_with_paper_key(tmp_path):
         assets_dir=str(tmp_path / "assets"), out_dir=str(tmp_path / "b"),
         ledger=ledger, delivered_date="2026-07-01")
     assert "arxiv:2406.00001" in ledger.seen_keys()
+
+
+def test_run_aborts_on_empty_assets_without_marking_ledger(tmp_path):
+    # If render produced no cards (empty assets dir), the bundle must NOT be written
+    # and the paper must NOT be marked delivered — otherwise the paper is burned
+    # from the pool with a broken (0-card) bundle that can never be re-posted.
+    post, paper, _assets = _setup(tmp_path)
+    empty = tmp_path / "empty_assets"
+    empty.mkdir()
+    ledger = Ledger(tmp_path / "led.db")
+    with pytest.raises(ValueError, match="no cards"):
+        run(
+            post_path=str(tmp_path / "post.json"),
+            paper_path=str(tmp_path / "paper.json"),
+            assets_dir=str(empty),
+            out_dir=str(tmp_path / "bundle"),
+            ledger=ledger,
+            delivered_date="2026-07-01",
+        )
+    # paper stays re-postable
+    assert not ledger.is_delivered("arxiv:2406.00001")
+
+
+def test_ledger_marked_only_after_manifest_written(tmp_path):
+    # Data-loss guard: if mark_delivered runs before the manifest is written, a
+    # crash between them burns the paper with no usable bundle. Assert the manifest
+    # exists at the moment the ledger records the paper, by failing the ledger write
+    # and confirming the manifest is already on disk.
+    _setup(tmp_path)
+    out = tmp_path / "bundle"
+
+    class ExplodingLedger(Ledger):
+        def mark_delivered(self, *a, **k):
+            # At the point of recording delivery, the full bundle must already exist.
+            assert (out / "bundle_manifest.json").exists(), \
+                "ledger marked before manifest written (crash here would burn the paper)"
+            raise RuntimeError("boom")
+
+    ledger = ExplodingLedger(tmp_path / "led.db")
+    with pytest.raises(RuntimeError, match="boom"):
+        run(
+            post_path=str(tmp_path / "post.json"),
+            paper_path=str(tmp_path / "paper.json"),
+            assets_dir=str(tmp_path / "assets"),
+            out_dir=str(out),
+            ledger=ledger,
+            delivered_date="2026-07-01",
+        )
 
 
 def test_run_inserts_screenshot_second_to_last(tmp_path):

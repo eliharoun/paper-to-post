@@ -98,24 +98,37 @@ def render_text_cards(
     # autoescape for text fields; the CSS is passed through |safe in the template.
     env = Environment(loader=FileSystemLoader(str(_TEMPLATE_DIR)), autoescape=True)
     cards = [c for c in post["carousel_cards"] if c["card_number"] >= start_index]
+    if not cards:
+        # No renderable cards (empty carousel or start_index past the last card).
+        # Fail loudly: an empty render otherwise returns [] with exit 0 and flows
+        # into an empty, broken bundle that still gets marked delivered.
+        raise ValueError(
+            f"no cards to render (carousel has "
+            f"{len(post.get('carousel_cards', []))} cards, start_index={start_index})"
+        )
     scale = brand.render_scale
     paths: list[Path] = []
 
     with sync_playwright() as p:
         browser = p.chromium.launch(args=["--no-sandbox"])
-        page = browser.new_page(
-            viewport={"width": brand.canvas_width, "height": brand.canvas_height},
-            device_scale_factor=scale,
-        )
-        for card in cards:
-            html = _card_html(env, card, brand, motif_key=motif_key, paper=paper)
-            page.set_content(html, wait_until="load")
-            page.evaluate("document.fonts.ready")  # ensure embedded font is applied
-            png = page.screenshot()
-            img = Image.open(io.BytesIO(png)).convert("RGB")
-            assert_dimensions(img, brand.canvas_width * scale, brand.canvas_height * scale)
-            out = out_dir / f"card_{card['card_number']:02d}.jpg"
-            img.save(out, "JPEG", quality=brand.jpeg_quality)
-            paths.append(out)
-        browser.close()
+        # try/finally so a render exception (bad HTML, dimension assert, disk error)
+        # can't leak the Chromium process; leaked browsers accumulate across a batch
+        # and exhaust memory / file descriptors.
+        try:
+            page = browser.new_page(
+                viewport={"width": brand.canvas_width, "height": brand.canvas_height},
+                device_scale_factor=scale,
+            )
+            for card in cards:
+                html = _card_html(env, card, brand, motif_key=motif_key, paper=paper)
+                page.set_content(html, wait_until="load")
+                page.evaluate("document.fonts.ready")  # ensure embedded font is applied
+                png = page.screenshot()
+                img = Image.open(io.BytesIO(png)).convert("RGB")
+                assert_dimensions(img, brand.canvas_width * scale, brand.canvas_height * scale)
+                out = out_dir / f"card_{card['card_number']:02d}.jpg"
+                img.save(out, "JPEG", quality=brand.jpeg_quality)
+                paths.append(out)
+        finally:
+            browser.close()
     return paths

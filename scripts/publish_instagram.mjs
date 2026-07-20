@@ -35,9 +35,21 @@ const expectUser = arg("expect-username", false); // guard: expected @handle, e.
 
 // 0. Idempotency: if this bundle already published, do NOT post again (Instagram
 //    has no delete API, so a duplicate is unrecoverable). Re-running is safe.
+//    A marker with status "pending" means a previous run published to the API but
+//    died before confirming — the post is very likely LIVE. We must NOT blindly
+//    re-post; abort and tell the operator to reconcile (check_published.mjs) so a
+//    wrapper-error-after-success can't cause a duplicate.
 const publishedPath = `${dir}/published.json`;
 if (fs.existsSync(publishedPath)) {
   const prev = JSON.parse(fs.readFileSync(publishedPath, "utf8"));
+  if (prev.status === "pending") {
+    console.error(
+      `ABORT: ${publishedPath} shows status "pending" (media_id ${prev.media_id}). ` +
+      `A prior run published to the API but did not confirm; the post is likely LIVE. ` +
+      `Reconcile with check_published.mjs before re-running (do NOT re-post blindly).`
+    );
+    process.exit(1);
+  }
   console.log(JSON.stringify({ ok: true, skipped: "already-published", ...prev }));
   process.exit(0);
 }
@@ -92,6 +104,18 @@ const pub = await execute(
 );
 if (!pub.successful) { console.error("publish failed:", pub.error); process.exit(1); }
 
+// CRITICAL: the API has now accepted the post — it is LIVE. Persist a "pending"
+// marker with the media_id BEFORE the verify GET, so that if anything after this
+// point fails (verify error, wrapper crash, kill), a re-run sees the marker and
+// refuses to double-post (there is no delete API). Instagram double-posts have
+// happened exactly here: publish succeeded, a later step threw, no marker written.
+try {
+  fs.writeFileSync(
+    publishedPath,
+    JSON.stringify({ status: "pending", account: username, media_id: pub.data.id }, null, 2)
+  );
+} catch {}
+
 const check = await execute(
   "INSTAGRAM_GET_IG_MEDIA",
   { ig_user_id: "me", ig_media_id: pub.data.id, fields: "id,permalink,username" },
@@ -99,11 +123,11 @@ const check = await execute(
 );
 const result = {
   ok: true,
+  status: "confirmed",
   account: username,
   media_id: pub.data.id,
   permalink: check.data?.permalink || null,
 };
-// Record success so a re-run (e.g. after a batch timeout) skips this bundle
-// instead of double-posting. See the idempotency guard at the top.
+// Upgrade the marker to confirmed (with permalink). A re-run now cleanly skips.
 try { fs.writeFileSync(publishedPath, JSON.stringify(result, null, 2)); } catch {}
 console.log(JSON.stringify(result));

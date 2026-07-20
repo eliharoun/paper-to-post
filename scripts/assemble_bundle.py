@@ -40,6 +40,11 @@ def run(
     # 1. copy images in final posting order (screenshot inserted before source),
     #    renumbered sequentially so Instagram shows them in order.
     cards = ordered_card_paths(assets_dir)
+    if not cards:
+        # Render produced nothing (empty/missing assets). Abort BEFORE writing any
+        # artifacts or touching the ledger, so the paper stays re-postable instead
+        # of being burned with a broken 0-card bundle.
+        raise ValueError(f"no cards found in assets dir {assets_dir!r}; nothing to bundle")
     shot = Path(screenshot_path) if screenshot_path else None
     ordered = final_image_order(cards, shot)
     copied: list[str] = []
@@ -62,10 +67,7 @@ def run(
     (out / "post.json").write_text(json.dumps(post, indent=2))
     (out / "selected_paper.json").write_text(json.dumps(paper, indent=2))
 
-    # 5. record delivered so the paper is never re-posted
     key = paper_key_from_dict(paper)
-    ledger.mark_delivered(key, delivered_date, post_id=post.get("paper_id", key))
-
     manifest = {
         "out_dir": str(out),
         "cards": copied,
@@ -74,6 +76,11 @@ def run(
         "caption_chars": len(caption),
     }
     (out / "bundle_manifest.json").write_text(json.dumps(manifest, indent=2))
+
+    # 5. record delivered LAST — only after the full bundle (incl. manifest) is on
+    #    disk. If a crash happens earlier, the paper stays re-postable rather than
+    #    being burned from the pool with no usable output.
+    ledger.mark_delivered(key, delivered_date, post_id=post.get("paper_id", key))
     return manifest
 
 
