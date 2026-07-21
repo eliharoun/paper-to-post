@@ -135,16 +135,23 @@ class Ledger:
         self, media_id: str, values: dict, *, updated_at: str, frozen: bool = False,
     ) -> None:
         """Insert/update a post's metric snapshot. Only known metric columns are
-        written; `frozen` sets frozen_at=updated_at (a one-way freeze at ~7 days)."""
+        written; `frozen` sets frozen_at=updated_at (a one-way freeze at ~7 days).
+
+        Once a row is frozen, its metric columns are PINNED: later polls update only
+        `updated_at`, never the numbers — a frozen row is the finalized snapshot the
+        PerfSignal will trust. Partial `values` dicts only touch the keys present."""
         cols = [c for c in _METRIC_COLS if c in values]
         with self._conn() as conn:
-            existing = conn.execute(
-                "SELECT 1 FROM post_metrics WHERE media_id = ?", (media_id,)
+            row = conn.execute(
+                "SELECT frozen_at FROM post_metrics WHERE media_id = ?", (media_id,)
             ).fetchone()
-            if existing is None:
+            already_frozen = row is not None and row[0] is not None
+            if row is None:
                 conn.execute("INSERT INTO post_metrics (media_id) VALUES (?)", (media_id,))
-            sets = ", ".join(f"{c} = ?" for c in cols) + (", " if cols else "")
-            params = [values[c] for c in cols]
+            # Freeze the numbers: skip metric writes once the row is already frozen.
+            write_cols = [] if already_frozen else cols
+            sets = ", ".join(f"{c} = ?" for c in write_cols) + (", " if write_cols else "")
+            params = [values[c] for c in write_cols]
             conn.execute(
                 f"UPDATE post_metrics SET {sets}updated_at = ?, "
                 "frozen_at = COALESCE(frozen_at, ?) WHERE media_id = ?",

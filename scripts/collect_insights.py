@@ -27,9 +27,17 @@ from scripts.lib.store import Ledger
 _MJS = Path(__file__).parent / "collect_insights.mjs"
 
 
-def _age_days(timestamp: str, today: str) -> int:
-    """Whole days between an ISO media timestamp (YYYY-MM-DDT...) and `today`."""
-    d = date.fromisoformat(timestamp[:10])
+def _age_days(timestamp: str | None, today: str) -> int:
+    """Whole days between an ISO media timestamp (YYYY-MM-DDT...) and `today`.
+
+    A missing/blank/unparseable timestamp returns 0 (treat as fresh, don't freeze)
+    rather than raising — one odd item must not crash the whole ingest batch."""
+    if not timestamp:
+        return 0
+    try:
+        d = date.fromisoformat(timestamp[:10])
+    except ValueError:
+        return 0
     return (date.fromisoformat(today) - d).days
 
 
@@ -45,7 +53,7 @@ def ingest_snapshot(snapshot: dict, ledger: Ledger, *, today: str, freeze_days: 
         if not metrics:
             continue
         media_id = post["media_id"]
-        frozen = _age_days(post.get("timestamp", today), today) >= freeze_days
+        frozen = _age_days(post.get("timestamp"), today) >= freeze_days
         ledger.upsert_metrics(media_id, metrics, updated_at=today, frozen=frozen)
         n += 1
     return n
