@@ -54,7 +54,11 @@ def verify(bundle_dir: str | Path, *, account: str | None = None,
         except (OSError, json.JSONDecodeError) as e:
             errors.append(f"bundle_manifest.json unreadable: {e}")
 
-    for required in ("post.json", "selected_paper.json"):
+    # A paperless roundup (manifest paper_key is null) has no selected_paper.json;
+    # everything else must carry one. post.json is always required.
+    is_roundup = manifest.get("paper_key") is None and manifest_path.exists()
+    required_files = ["post.json"] if is_roundup else ["post.json", "selected_paper.json"]
+    for required in required_files:
         if not (out / required).exists():
             errors.append(f"{required} missing")
 

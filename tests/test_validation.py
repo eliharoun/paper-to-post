@@ -334,6 +334,16 @@ def test_validate_post_substance_is_warning_not_error():
     assert any("substance" in w.lower() for w in result.warnings)
 
 
+def test_validate_post_without_paper_skips_grounding():
+    # A paperless roundup (paper=None) must still enforce schema/length/hype/style/
+    # engagement but skip paper-grounding + caption-link (there's no single paper).
+    result = validate_post(GOOD_POST, None, BRAND, requires_guardrails=False)
+    assert result.passed, result.errors
+    # a banned term is still caught with no paper
+    bad = dict(GOOD_POST, caption="A revolutionary result.")
+    assert not validate_post(bad, None, BRAND, requires_guardrails=False).passed
+
+
 def test_validate_post_aggregates_errors():
     bad = dict(GOOD_POST, source_url="https://evil.example.com", caption="no link")
     result = validate_post(bad, GOOD_PAPER, BRAND, requires_guardrails=False)

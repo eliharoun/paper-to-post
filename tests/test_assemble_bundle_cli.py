@@ -118,6 +118,33 @@ def test_ledger_marked_only_after_manifest_written(tmp_path):
         )
 
 
+def test_run_without_paper_bundles_a_roundup(tmp_path):
+    # A roundup has no single paper: run() must accept paper_path=None, skip the
+    # selected_paper.json write and the ledger mark, and still produce a valid bundle
+    # (caption from post["caption"], cards copied, manifest written).
+    post, _paper, assets = _setup(tmp_path)
+    post["caption"] = "5 papers you missed.\n\n📄 https://arxiv.org/abs/1"
+    (tmp_path / "post.json").write_text(json.dumps(post))
+    out = tmp_path / "roundup"
+    ledger = Ledger(tmp_path / "led.db")
+
+    result = run(
+        post_path=str(tmp_path / "post.json"),
+        paper_path=None,
+        assets_dir=str(assets),
+        out_dir=str(out),
+        ledger=ledger,
+        delivered_date="2026-07-24",
+    )
+    assert (out / "card_01.jpg").exists()
+    assert (out / "caption.txt").read_text().startswith("5 papers you missed")
+    assert (out / "post.json").exists()
+    assert not (out / "selected_paper.json").exists()   # no paper to write
+    assert result["card_count"] == 2
+    assert result.get("paper_key") is None
+    assert ledger.seen_keys() == set()                  # nothing marked delivered
+
+
 def test_run_inserts_screenshot_second_to_last(tmp_path):
     _setup(tmp_path)  # assets has card_01 (title), card_02 (source)
     shot = tmp_path / "paper_page.jpg"

@@ -16,7 +16,7 @@ from scripts.lib.store import Ledger
 def run(
     *,
     post_path: str,
-    paper_path: str,
+    paper_path: str | None,
     assets_dir: str,
     out_dir: str,
     ledger: Ledger,
@@ -29,11 +29,17 @@ def run(
     If screenshot_path is given and exists, the paper first-page image is placed
     second-to-last (just before the source card). Final images are renumbered
     card_01..card_0N in posting order.
+
+    `paper_path` may be None for a paperless post (e.g. a weekly roundup): the
+    caption comes from post["caption"], no selected_paper.json is written, and
+    nothing is recorded in the ledger (there is no single paper to de-dupe).
     """
     with open(post_path) as f:
         post = json.load(f)
-    with open(paper_path) as f:
-        paper = json.load(f)
+    paper = None
+    if paper_path is not None:
+        with open(paper_path) as f:
+            paper = json.load(f)
 
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -57,18 +63,21 @@ def run(
     # 2. caption.txt (guaranteed to contain the article link). The paper link field
     #    is `url` on candidates but the post JSON / schema uses `source_url`; accept
     #    either so the link-guarantee never silently breaks on a field-name drift.
-    paper_url = paper.get("url") or paper.get("source_url") or post.get("source_url", "")
+    #    A paperless roundup falls back to source_url (its caption already lists links).
+    paper_url = ((paper.get("url") or paper.get("source_url")) if paper else "") \
+        or post.get("source_url", "")
     caption = compose_caption(post.get("caption", ""), paper_url, post.get("hashtags"))
     (out / "caption.txt").write_text(caption)
 
     # 3. alt_text.txt
     (out / "alt_text.txt").write_text(post.get("alt_text", ""))
 
-    # 4. audit copies
+    # 4. audit copies (selected_paper.json only when there is a paper)
     (out / "post.json").write_text(json.dumps(post, indent=2))
-    (out / "selected_paper.json").write_text(json.dumps(paper, indent=2))
+    if paper is not None:
+        (out / "selected_paper.json").write_text(json.dumps(paper, indent=2))
 
-    key = paper_key_from_dict(paper)
+    key = paper_key_from_dict(paper) if paper is not None else None
     manifest = {
         "out_dir": str(out),
         "cards": copied,
@@ -80,16 +89,19 @@ def run(
 
     # 5. record delivered LAST — only after the full bundle (incl. manifest) is on
     #    disk. If a crash happens earlier, the paper stays re-postable rather than
-    #    being burned from the pool with no usable output.
-    ledger.mark_delivered(key, delivered_date, post_id=post.get("paper_id", key),
-                          account=account)
+    #    being burned from the pool with no usable output. A paperless roundup has
+    #    no key to record (it's a digest of already-delivered papers).
+    if key is not None:
+        ledger.mark_delivered(key, delivered_date, post_id=post.get("paper_id", key),
+                              account=account)
     return manifest
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Assemble the final post-ready bundle")
     ap.add_argument("--post", required=True)
-    ap.add_argument("--paper", required=True)
+    ap.add_argument("--paper", default=None,
+                    help="selected paper JSON; omit for a paperless post (e.g. roundup)")
     ap.add_argument("--assets-dir", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--ledger", default=None)

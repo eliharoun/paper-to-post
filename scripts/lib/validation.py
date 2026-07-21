@@ -284,9 +284,13 @@ def check_health(post: GeneratedPost, paper: dict, *, requires_guardrails: bool)
 
 
 def validate_post(
-    post_dict: dict, paper: dict, brand: BrandConfig, *, requires_guardrails: bool
+    post_dict: dict, paper: dict | None, brand: BrandConfig, *, requires_guardrails: bool
 ) -> ValidationResult:
-    """Run every check. passed=True only if there are zero errors."""
+    """Run every check. passed=True only if there are zero errors.
+
+    `paper` may be None for a paperless post (e.g. a weekly roundup): the
+    paper-grounding, caption-link, and paper-based health checks are skipped, but
+    schema/length/hype/style/readability/engagement still gate."""
     schema_errors, post = check_schema(post_dict, brand)
     if post is None:
         return ValidationResult(passed=False, errors=schema_errors)
@@ -295,10 +299,11 @@ def validate_post(
     errors += check_lengths(post, brand)
     errors += check_hype(post)
     errors += check_style(post)
-    errors += check_grounding(post, paper)
-    errors += check_caption_link(post, paper)
     errors += check_readability(post)
-    errors += check_health(post, paper, requires_guardrails=requires_guardrails)
+    if paper is not None:
+        errors += check_grounding(post, paper)
+        errors += check_caption_link(post, paper)
+        errors += check_health(post, paper, requires_guardrails=requires_guardrails)
     eng_errors, eng_warnings = check_engagement(post)
     errors += eng_errors
     # Warnings inform the writer's judgment but never gate: passed keys on errors only.

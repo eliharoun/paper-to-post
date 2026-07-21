@@ -21,7 +21,9 @@ def _requires_guardrails(paper: dict, topics_path: str | None) -> bool:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Validate a generated post (hard gate)")
     ap.add_argument("--post", required=True)
-    ap.add_argument("--paper", required=True)
+    ap.add_argument("--paper", default=None,
+                    help="selected paper JSON; omit for a paperless post (e.g. roundup) "
+                         "to skip grounding/caption-link/health checks")
     ap.add_argument("--account", default=None, help="account id, e.g. cs or bio")
     ap.add_argument("--brand", default=None, help="explicit brand file (overrides --account)")
     ap.add_argument("--topics", default=None)
@@ -29,11 +31,13 @@ def main(argv: list[str] | None = None) -> int:
 
     with open(args.post) as f:
         post = json.load(f)
-    with open(args.paper) as f:
-        paper = json.load(f)
+    paper = None
+    if args.paper:
+        with open(args.paper) as f:
+            paper = json.load(f)
 
     brand = resolve_brand(account=args.account, brand_path=args.brand)
-    guarded = _requires_guardrails(paper, args.topics)
+    guarded = _requires_guardrails(paper, args.topics) if paper else False
     result = validate_post(post, paper, brand, requires_guardrails=guarded)
 
     print(json.dumps(result.model_dump(), indent=2))

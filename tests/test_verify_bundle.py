@@ -86,3 +86,35 @@ def test_non_contiguous_cards_fail(tmp_path):
     result = verify(out)
     assert not result["ok"]
     assert any("contiguous" in e for e in result["errors"])
+
+
+def _make_roundup_bundle(tmp_path, *, n_cards=5):
+    """A paperless roundup bundle (no --paper), built via assemble_bundle.run."""
+    post = json.loads((FIX / "good_post.json").read_text())
+    post["caption"] = "5 papers you missed.\n\n📄 https://arxiv.org/abs/1"
+    (tmp_path / "post.json").write_text(json.dumps(post))
+    assets = tmp_path / "assets"
+    assets.mkdir()
+    for i in range(1, n_cards + 1):
+        (assets / f"card_{i:02d}.jpg").write_bytes(b"\xff\xd8\xff")
+    out = tmp_path / "roundup"
+    run(post_path=str(tmp_path / "post.json"), paper_path=None,
+        assets_dir=str(assets), out_dir=str(out),
+        ledger=Ledger(tmp_path / "led.db"), delivered_date="2026-07-24")
+    return out
+
+
+def test_roundup_bundle_without_paper_passes(tmp_path):
+    # A paperless roundup has no selected_paper.json; verify must still pass.
+    out = _make_roundup_bundle(tmp_path, n_cards=5)
+    result = verify(out, account="cs")
+    assert result["ok"], result["errors"]
+    assert result["card_count"] == 5
+
+
+def test_card_count_over_delivered_max_fails(tmp_path):
+    # brand max_cards is 7; 9 cards is over the delivered ceiling (max+1) -> reject.
+    out = _make_bundle(tmp_path, n_cards=9)
+    result = verify(out, account="cs")
+    assert not result["ok"]
+    assert any("bounds" in e.lower() or "card" in e.lower() for e in result["errors"])

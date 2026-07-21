@@ -209,7 +209,11 @@ Once a week, assemble a **"papers you missed" roundup carousel** per account fro
 research-roundup --account $ACC --dates 2026-07-20,2026-07-21,2026-07-22,2026-07-23,2026-07-24 \
   --title "5 CS papers you missed this week" --out outputs/$D/$ACC/roundup --max-entries 5
 ```
-This writes `outputs/$D/$ACC/roundup/run/post.json` (title + one `finding` card per paper, ranked #1..#N, + a source outro; every paper's link in the caption). Then run the normal render (`--episode $EP`), bundle (no `--screenshot`, no `--paper` — there's no single paper), verify, review-gate, and publish steps on `outputs/$D/$ACC/roundup` exactly as for a regular post.
+This writes `outputs/$D/$ACC/roundup/run/post.json` (title + one `finding` card per paper, ranked #1..#N, + a source outro; every paper's link in the caption). Then run the normal pipeline on `outputs/$D/$ACC/roundup`, **omitting `--paper` at every step** (a roundup has no single paper — the scripts accept its absence and skip paper-grounding, screenshot insertion, and the ledger mark):
+- **Validate:** `research-validate --post outputs/$D/$ACC/roundup/run/post.json --account $ACC` (no `--paper` → schema/length/hype/style still gate; grounding/caption-link skipped).
+- **Render:** `research-render --post outputs/$D/$ACC/roundup/run/post.json --out outputs/$D/$ACC/roundup/assets --account $ACC --motif-key "$D-roundup" --episode $EP` (roundup front card is always the motif — no hero prompt; no `--paper`, so no footers).
+- **Bundle:** `research-bundle --post outputs/$D/$ACC/roundup/run/post.json --assets-dir outputs/$D/$ACC/roundup/assets --out outputs/$D/$ACC/roundup --date $D` (no `--paper`, no `--screenshot`, no `--account` — nothing is recorded in the ledger).
+- **Verify / review-gate / publish** exactly as for a regular post (`research-verify-bundle` tolerates the missing `selected_paper.json` for a roundup). Needs at least `min_cards - 2` papers that week (3 for the default min of 5), else skip the roundup.
 
 ## Quick reference
 
