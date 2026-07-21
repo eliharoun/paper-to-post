@@ -1,5 +1,3 @@
-import json
-from datetime import date
 
 from scripts.collect_insights import ingest_snapshot
 from scripts.lib.store import Ledger

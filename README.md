@@ -35,8 +35,12 @@ python -m venv .venv && . .venv/bin/activate
 make install
 python -m playwright install chromium   # needed for rendering
 cp .env.example .env                     # set CONTACT_EMAIL; API keys optional
-make test
+make test                                # Python (pytest) + JS (.mjs logic, node --test)
 ```
+
+`make test` runs both `make test-py` (pytest) and `make test-js` (Node's built-in
+test runner over `tests/js/`, covering the publish idempotency + insights parsing
+logic the Composio `.mjs` scripts import). `make test-js` needs Node ≥ 18.
 
 ## Installing the skill (Claude Code & other agents)
 

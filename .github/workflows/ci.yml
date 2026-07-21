@@ -13,11 +13,16 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
       - name: Install
         run: pip install -e ".[dev]"
       - name: Lint
         run: ruff check scripts tests
       - name: Install Chromium (for render/browser tests)
         run: python -m playwright install --with-deps chromium
-      - name: Test
+      - name: Test (Python)
         run: pytest -q
+      - name: Test (JS — .mjs script logic)
+        run: node --test tests/js/

@@ -1,6 +1,6 @@
 from PIL import Image
 
-from scripts.render_grid_preview import center_crop, build_mosaic, find_front_cards
+from scripts.render_grid_preview import build_mosaic, center_crop, find_front_cards
 
 
 def test_center_crop_to_ratio():

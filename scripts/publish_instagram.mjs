@@ -19,6 +19,9 @@
 // Args are read from process.argv (the CLI passes them through).
 
 import fs from "node:fs";
+import {
+  decideFromMarker, orderedCardFiles, validateCarousel, pendingMarker, confirmedResult,
+} from "./jslib/publish_logic.mjs";
 
 function arg(name, required = true) {
   const i = process.argv.indexOf(`--${name}`);
@@ -40,19 +43,11 @@ const expectUser = arg("expect-username", false); // guard: expected @handle, e.
 //    re-post; abort and tell the operator to reconcile (check_published.mjs) so a
 //    wrapper-error-after-success can't cause a duplicate.
 const publishedPath = `${dir}/published.json`;
-if (fs.existsSync(publishedPath)) {
-  const prev = JSON.parse(fs.readFileSync(publishedPath, "utf8"));
-  if (prev.status === "pending") {
-    console.error(
-      `ABORT: ${publishedPath} shows status "pending" (media_id ${prev.media_id}). ` +
-      `A prior run published to the API but did not confirm; the post is likely LIVE. ` +
-      `Reconcile with check_published.mjs before re-running (do NOT re-post blindly).`
-    );
-    process.exit(1);
-  }
-  console.log(JSON.stringify({ ok: true, skipped: "already-published", ...prev }));
-  process.exit(0);
-}
+const marker = fs.existsSync(publishedPath)
+  ? JSON.parse(fs.readFileSync(publishedPath, "utf8")) : null;
+const decision = decideFromMarker(marker, publishedPath);
+if (decision.action === "abort") { console.error(decision.message); process.exit(decision.code); }
+if (decision.action === "skip") { console.log(JSON.stringify(decision.result)); process.exit(0); }
 
 // 1. Pre-flight: confirm which account this selector actually resolves to.
 const who = await execute("INSTAGRAM_GET_USER_INFO", { ig_user_id: "me" }, { account });
@@ -63,17 +58,12 @@ if (expectUser && username !== expectUser) {
   process.exit(1);
 }
 
-// 2. Gather ordered cards + caption from the bundle.
-const cards = fs.readdirSync(dir).filter((f) => /^card_\d+\.jpg$/.test(f)).sort();
-if (cards.length < 2 || cards.length > 10) {
-  console.error(`carousel needs 2-10 cards, found ${cards.length}`); process.exit(1);
-}
+// 2. Gather ordered cards + caption from the bundle, then validate the carousel
+//    (2-10 images, caption <= 2200) before uploading anything.
+const cards = orderedCardFiles(fs.readdirSync(dir));
 const caption = fs.existsSync(`${dir}/caption.txt`) ? fs.readFileSync(`${dir}/caption.txt`, "utf8") : "";
-// Instagram caption limit is 2200 chars. The validation gate enforces this
-// upstream, but abort here too rather than let the API reject a half-uploaded post.
-if (caption.length > 2200) {
-  console.error(`ABORT: caption ${caption.length} > 2200 chars (Instagram limit)`); process.exit(1);
-}
+const carouselCheck = validateCarousel(cards, caption);
+if (!carouselCheck.ok) { console.error(carouselCheck.message); process.exit(carouselCheck.code); }
 console.error(`target @${username} | cards ${cards.length} | caption ${caption.length} chars`);
 
 // 3. Child containers (local file upload via image_file = path).
@@ -110,10 +100,7 @@ if (!pub.successful) { console.error("publish failed:", pub.error); process.exit
 // refuses to double-post (there is no delete API). Instagram double-posts have
 // happened exactly here: publish succeeded, a later step threw, no marker written.
 try {
-  fs.writeFileSync(
-    publishedPath,
-    JSON.stringify({ status: "pending", account: username, media_id: pub.data.id }, null, 2)
-  );
+  fs.writeFileSync(publishedPath, JSON.stringify(pendingMarker(username, pub.data.id), null, 2));
 } catch (e) {
   // The post is LIVE but we could not record it. A silent failure here would let a
   // re-run double-post — so fail loudly with the media_id and stop, don't proceed.
@@ -130,13 +117,7 @@ const check = await execute(
   { ig_user_id: "me", ig_media_id: pub.data.id, fields: "id,permalink,username" },
   { account }
 );
-const result = {
-  ok: true,
-  status: "confirmed",
-  account: username,
-  media_id: pub.data.id,
-  permalink: check.data?.permalink || null,
-};
+const result = confirmedResult(username, pub.data.id, check.data?.permalink);
 // Upgrade the marker to confirmed (with permalink). A re-run now cleanly skips.
 try { fs.writeFileSync(publishedPath, JSON.stringify(result, null, 2)); } catch {}
 console.log(JSON.stringify(result));
