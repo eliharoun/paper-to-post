@@ -24,9 +24,15 @@ def compose_caption(
         body = f"{caption}\n\n🔗 Read the paper: {source_url}"
     if hashtags:
         norm = [t if t.startswith("#") else f"#{t}" for t in hashtags if t.strip()]
-        # skip tags already present in the caption prose (case-insensitive)
-        low = body.lower()
-        fresh = [t for t in norm if t.lower() not in low]
+        # Skip tags already present in the caption prose, compared as whole tokens
+        # (not substrings): #ai must not be dropped just because #AIethics is inline.
+        present = {m.lower() for m in re.findall(r"#\w+", body)}
+        fresh, seen = [], set(present)
+        for t in norm:
+            tl = t.lower()
+            if tl not in seen:
+                fresh.append(t)
+                seen.add(tl)
         if fresh:
             body = f"{body}\n\n{' '.join(fresh)}"
     return body

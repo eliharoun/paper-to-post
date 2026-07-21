@@ -39,6 +39,22 @@ def test_compose_caption_normalizes_and_dedupes_hashtags():
     assert "#LLM" in out
 
 
+def test_compose_caption_dedup_is_token_not_substring():
+    # A bank tag that is a leading-substring of an inlined tag must NOT be dropped:
+    # #ai is a substring of #AIethics but is a DISTINCT tag and should be appended.
+    out = compose_caption("Great work on #AIethics here.", "", hashtags=["ai", "LLM"])
+    tags = {t.lower() for t in out.split() if t.startswith("#")}
+    assert "#ai" in tags        # not swallowed by #aiethics
+    assert "#llm" in tags
+
+
+def test_compose_caption_dedup_skips_true_duplicate_token():
+    # An exact tag already inline (case-insensitive) is not doubled.
+    out = compose_caption("See #AIresearch here.", "", hashtags=["#airesearch", "ml"])
+    assert out.lower().count("#airesearch") == 1
+    assert "#ml" in out
+
+
 def test_compose_caption_no_hashtags_is_unchanged_behaviour():
     caption = "A finding."
     # None / empty list => no trailing hashtag block
