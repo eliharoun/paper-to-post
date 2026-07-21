@@ -76,6 +76,37 @@ def test_mark_delivered_account_is_optional_backcompat(tmp_path):
     assert led.edition_number("cs", "2026-07-20") == 1
 
 
+def test_attach_media_links_paper_to_media(tmp_path):
+    led = Ledger(tmp_path / "led.db")
+    led.mark_delivered("arxiv:1", "2026-07-20", post_id="p1", account="cs")
+    led.attach_media("arxiv:1", media_id="ig_123", account="cs",
+                     features={"source": "arxiv", "topic_id": "swe_ml_ai",
+                               "hero_vs_motif": "hero", "headline_pattern": "number"})
+    feats = led.post_features()
+    assert feats["ig_123"]["paper_key"] == "arxiv:1"
+    assert feats["ig_123"]["source"] == "arxiv"
+    assert feats["ig_123"]["hero_vs_motif"] == "hero"
+
+
+def test_upsert_and_read_metrics(tmp_path):
+    led = Ledger(tmp_path / "led.db")
+    led.upsert_metrics("ig_123", {"reach": 1000, "saved": 42, "shares": 7, "likes": 90,
+                                  "comments": 5, "views": 1200, "total_interactions": 144},
+                       updated_at="2026-07-21", frozen=False)
+    m = led.metrics("ig_123")
+    assert m["reach"] == 1000 and m["saved"] == 42 and m["frozen_at"] is None
+    # a later poll updates the same row (still unfrozen)
+    led.upsert_metrics("ig_123", {"reach": 2000, "saved": 80}, updated_at="2026-07-22",
+                       frozen=True)
+    m2 = led.metrics("ig_123")
+    assert m2["reach"] == 2000 and m2["saved"] == 80 and m2["frozen_at"] == "2026-07-22"
+
+
+def test_metrics_missing_returns_none(tmp_path):
+    led = Ledger(tmp_path / "led.db")
+    assert led.metrics("nope") is None
+
+
 def test_concurrent_writes_all_recorded(tmp_path):
     # Simulate parallel bundle steps writing distinct keys at once. With WAL + a
     # busy timeout none should be lost to lock contention.
