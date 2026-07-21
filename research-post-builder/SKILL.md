@@ -201,6 +201,14 @@ After all topics, show the operator a summary: per topic, how many posts were pr
 ### Skip a topic
 If a topic has no candidate clearing the bar (or all fail validation), don't post for it. Write `outputs/$D/$ACC/SKIPPED.txt` with the reason and tell the operator. A skipped topic is a correct outcome — never force weak posts to hit the target N.
 
+### Weekly roundup (optional format, format variety)
+Once a week, assemble a **"papers you missed" roundup carousel** per account from the week's already-produced posts (gather-free — it reads the week's `post.json` files, not new papers). It reuses the standard render → bundle → verify → publish path unchanged; it is NOT about a single paper, so it skips paper-grounding validation but still passes schema/length/hype/style.
+```bash
+research-roundup --account $ACC --dates 2026-07-20,2026-07-21,2026-07-22,2026-07-23,2026-07-24 \
+  --title "5 CS papers you missed this week" --out outputs/$D/$ACC/roundup --max-entries 5
+```
+This writes `outputs/$D/$ACC/roundup/run/post.json` (title + one `finding` card per paper, ranked #1..#N, + a source outro; every paper's link in the caption). Then run the normal render (`--episode $EP`), bundle (no `--screenshot`, no `--paper` — there's no single paper), verify, review-gate, and publish steps on `outputs/$D/$ACC/roundup` exactly as for a regular post.
+
 ## Quick reference
 
 Run from the repo root with the venv active. Every script also accepts `--help`. Exit codes: `0` ok; `1` validation/verification failed (`research-validate` and `research-verify-bundle` both use `1` for a failed check); `2` external API/usage error; `3` render failure (generic; validated posts don't overflow, so first suspect the environment, e.g. missing Chromium). (`research-hero` is the exception: any non-zero exit — 2/3/4/5 — just means "fall back to the motif front card," never an error to fix; see step 4.) `$D` = date, `$ACC` = topic's account id, `$TOPIC` = topic id, `$N` = post number (1..N, where N is the topic's greediest channel `max_posts`). Gather is **once per topic**; the per-post steps run **per post** in `postN/` dirs; deliver runs **once per channel**, each over its own `max_posts` cut.

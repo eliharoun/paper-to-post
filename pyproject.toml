@@ -47,6 +47,7 @@ research-hero = "scripts.render_hero:main"
 research-bundle = "scripts.assemble_bundle:main"
 research-verify-bundle = "scripts.verify_bundle:main"
 research-insights = "scripts.collect_insights:main"
+research-roundup = "scripts.build_roundup:main"
 research-notify = "scripts.notify_telegram:main"
 research-newsletter = "scripts.newsletter:main"
 
