@@ -37,7 +37,7 @@ Keep sentences readable — the validator caps average sentence length at ~26 wo
 
 ## Banned hype terms
 
-Do not use these unless the source's own wording explicitly supports it (rare): `cure`, `proven`, `guaranteed`, `miracle`, `breakthrough`, `game-changing`, `doctors recommend`, `everyone should`, `eliminates risk`, `100%`, `no risk`. The validator will reject them.
+Do not use these unless the source's own wording explicitly supports it (rare) — the validator's full list: `cure`, `proven`, `proves`, `guaranteed`, `miracle`, `breakthrough`, `revolutionary`, `game-changer`, `game-changing`, `doctors recommend`, `everyone should`, `eliminates risk`, `100%`, `no risk`. The validator will reject them.
 
 ## Banned punctuation: no em/en dashes (an "AI tell")
 

@@ -114,7 +114,16 @@ try {
     publishedPath,
     JSON.stringify({ status: "pending", account: username, media_id: pub.data.id }, null, 2)
   );
-} catch {}
+} catch (e) {
+  // The post is LIVE but we could not record it. A silent failure here would let a
+  // re-run double-post — so fail loudly with the media_id and stop, don't proceed.
+  console.error(
+    `CRITICAL: post is LIVE (media_id ${pub.data.id}) but writing ${publishedPath} failed: ` +
+    `${e?.message || e}. Do NOT re-run blindly — reconcile with check_published.mjs and ` +
+    `hand-write {"status":"confirmed","media_id":"${pub.data.id}"} before any retry.`
+  );
+  process.exit(1);
+}
 
 const check = await execute(
   "INSTAGRAM_GET_IG_MEDIA",

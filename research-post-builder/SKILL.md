@@ -66,12 +66,13 @@ The installed console commands (`research-gather`, `research-validate`, `researc
 
 For each topic, do a **Gather → Select-N** pass once, then the **per-post pipeline (read → write → validate → render → bundle)** for each selected paper, then **Deliver** to each configured channel. Track it with a todo list. `$ACC` is the topic's `account` id, `$TOPIC` its `id`, `$D` the date `YYYY-MM-DD`, `$N` the post number `1..N`. Per-post dirs are `outputs/$D/$ACC/postN/run/` and `.../postN/assets/`, delivered to `outputs/$D/$ACC/postN/`.
 
-Read the per-channel volume from config once, up front:
+Read the per-channel volume **and the hashtag bank** from config once, up front — the bank must be handed to each writer (a dispatched subagent won't otherwise see it):
 ```bash
 python -c "from scripts.lib.config import load_topics
 t=[x for x in load_topics().topics if x.id=='$TOPIC'][0]
 print('produce N =', t.max_posts_needed())   # None => every paper that clears the bar
-for c in t.publish_targets(): print(' ', c.channel, 'max_posts=', c.max_posts)"
+for c in t.publish_targets(): print(' ', c.channel, 'max_posts=', c.max_posts)
+print('hashtag_bank =', t.hashtag_bank)"      # pass these tags into each post's brief
 ```
 
 ### A. Gather (once per topic)
@@ -126,6 +127,8 @@ Thread `--episode $EP` into both `research-hero` and `research-render` (it rende
    - [ ] Results card present with the paper's real numbers.
    - [ ] Caption contains the full `https://…` `source_url` line.
    - [ ] Card 2 works as a standalone hook.
+   - [ ] `share_cta` is present and contains a send/share/tag verb (validator **errors** without it), and `takeaway`/`debate_question` are authored.
+   - [ ] `hashtags` field holds 3–5 mid-tail tags from the topic's `hashtag_bank` (not inlined in the caption).
    - [ ] Every card `footer` is `""` (footers are auto-generated).
 
    The `post.json` (cards + Instagram caption) is the base artifact. **Channel-specific copy is written per channel, not shared** — the caption is tuned for Instagram and must NOT be reused verbatim on LinkedIn or in the newsletter. LinkedIn copy is authored at delivery time (step D, from `references/linkedin-writing-guide.md`); the newsletter digest reads the `post.json` fields (`plain_english_headline`, `one_sentence_summary`, `why_it_matters`) and its style is governed by `references/newsletter-writing-guide.md`. Only author the channel copy for channels this topic actually publishes to.
@@ -168,7 +171,7 @@ for c in t.publish_targets(): print(c.channel, c.alias, c.username, c.max_posts)
 ```
 For each channel, run its publisher over its top `max_posts` bundles (`MAX` below = that channel's `max_posts`; if it's `None`/unset, use the number of bundles produced).
 
-**Publish ONE post per command — never loop multiple carousels in a single shell call.** An 8-card carousel takes ~20–30s (child uploads → carousel → publish → verify); a loop of several blows past the default 120s command timeout and leaves you unsure which posts went live. Both publishers are **idempotent**: on success they write `published.json` (IG) / `linkedin_published.json` (LinkedIn) into the bundle dir, and a re-run with that file present **skips and reports `already-published`** — so re-running after an interruption is safe and will not double-post. If you're ever unsure what actually posted (Instagram has no delete API), probe read-only first: `~/.composio/composio run -f scripts/check_published.mjs -- --account "$ALIAS"`.
+**Publish ONE post per command — never loop multiple carousels in a single shell call.** An 8-card carousel takes ~20–30s (child uploads → carousel → publish → verify); a loop of several blows past the default 120s command timeout and leaves you unsure which posts went live. Both publishers are **idempotent**: on success they write `published.json` (IG) / `linkedin_published.json` (LinkedIn) into the bundle dir with `status: "confirmed"`, and a re-run with that file present **skips and reports `already-published`** — so re-running after an interruption is safe and will not double-post. **`status: "pending"` (IG)** means a prior run published to the API but crashed before confirming — the post is **very likely LIVE**, so the script **aborts with exit 1** instead of re-posting. Do NOT delete the marker and re-run. Instead probe read-only (`~/.composio/composio run -f scripts/check_published.mjs -- --account "$ALIAS"`): if the post is live, hand-edit `published.json` to `{"status":"confirmed","media_id":"…"}`; only if it is genuinely NOT live may you remove the marker and re-run. If you're ever unsure what actually posted (Instagram has no delete API), always probe first.
 
 - **`instagram`** — one carousel per post. Read `references/instagram-publishing.md` (the account-selection rule is mandatory). The script selects the account with the Composio `account` key and **verifies the resolved username before uploading anything**; there is no delete API, so never bypass the guard. Publish each bundle in its **own** command (do not loop):
   ```bash
@@ -225,9 +228,9 @@ Run from the repo root with the venv active. Every script also accepts `--help`.
 | Full paper text (per post) | `research-paper-text --paper outputs/$D/$ACC/post$N/run/selected_paper.json --out outputs/$D/$ACC/post$N/run/paper_text.txt` |
 | **Validate (gate)** | `research-validate --post outputs/$D/$ACC/post$N/run/post.json --paper outputs/$D/$ACC/post$N/run/selected_paper.json --account $ACC` |
 | Paper screenshot (to run/) | `research-screenshot --paper outputs/$D/$ACC/post$N/run/selected_paper.json --out outputs/$D/$ACC/post$N/run/paper_page.jpg --account $ACC` |
-| Render hero front card | `research-hero --post outputs/$D/$ACC/post$N/run/post.json --out outputs/$D/$ACC/post$N/assets --account $ACC --hero-out outputs/$D/$ACC/post$N/run/hero.png` (exit 0 → hero wrote `card_01.jpg`; non-zero → fall back to motif) |
-| Render cards | `research-render --post outputs/$D/$ACC/post$N/run/post.json --paper outputs/$D/$ACC/post$N/run/selected_paper.json --out outputs/$D/$ACC/post$N/assets --account $ACC --motif-key "$D-$N"` (add `--start-index 2` when the hero wrote `card_01.jpg`; `--paper` makes footers deterministic: source + full pub date, none on the title card) |
-| Assemble bundle | `research-bundle --post outputs/$D/$ACC/post$N/run/post.json --paper outputs/$D/$ACC/post$N/run/selected_paper.json --assets-dir outputs/$D/$ACC/post$N/assets --screenshot outputs/$D/$ACC/post$N/run/paper_page.jpg --out outputs/$D/$ACC/post$N --date $D` |
+| Render hero front card | `research-hero --post outputs/$D/$ACC/post$N/run/post.json --out outputs/$D/$ACC/post$N/assets --account $ACC --hero-out outputs/$D/$ACC/post$N/run/hero.png --episode $EP` (exit 0 → hero wrote `card_01.jpg`; non-zero → fall back to motif) |
+| Render cards | `research-render --post outputs/$D/$ACC/post$N/run/post.json --paper outputs/$D/$ACC/post$N/run/selected_paper.json --out outputs/$D/$ACC/post$N/assets --account $ACC --motif-key "$D-$N" --episode $EP` (add `--start-index 2` when the hero wrote `card_01.jpg`; `--paper` makes footers deterministic: source + full pub date, none on the title card) |
+| Assemble bundle | `research-bundle --post outputs/$D/$ACC/post$N/run/post.json --paper outputs/$D/$ACC/post$N/run/selected_paper.json --assets-dir outputs/$D/$ACC/post$N/assets --screenshot outputs/$D/$ACC/post$N/run/paper_page.jpg --out outputs/$D/$ACC/post$N --date $D --account $ACC` (`--account` keeps the per-account edition # correct; omit `--paper`/`--screenshot` for a roundup) |
 | **Verify bundle (artifact gate)** | `research-verify-bundle --dir outputs/$D/$ACC/post$N --account $ACC` (exit 0 = complete bundle; exit 1 = missing/incomplete, re-run or re-dispatch before delivery) |
 | **Publish Instagram** (one command per post) | `~/.composio/composio run -f scripts/publish_instagram.mjs -- --account "$ALIAS" --expect-username "$USER" --dir outputs/$D/$ACC/post$N` |
 | **Publish LinkedIn** (one command per post) | `~/.composio/composio run -f scripts/publish_linkedin.mjs -- --account "$ALIAS" --expect-username "$SUB" --dir outputs/$D/$ACC/post$N` (guard = member **sub**) |
