@@ -4,7 +4,7 @@ brand:
   # Series identity: front-card eyebrow becomes "DAILY BIOLOGY BITS · #<edition>".
   # Edition = per-account count of delivery days (from the ledger), passed at render.
   series_name: "Daily Biology Bits"
-  show_episode_number: true
+  show_episode_number: false
   canvas_width: 1080
   canvas_height: 1350
   render_scale: 2

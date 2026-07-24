@@ -10,6 +10,24 @@ BRAND = load_brand_for_account("cs")
 GOOD_POST = json.loads((Path(__file__).parent / "fixtures" / "good_post.json").read_text())
 
 
+def test_resolve_footer_skips_title_and_source_cards():
+    # The auto footer appears on content cards only: the opening title/hero card
+    # and the closing source card get no footer; cards between them show the
+    # deterministic 'Source · Category · Date' line from the paper.
+    from templates.render import _resolve_footer
+    paper = {"source": "arxiv", "field_of_study": "cs.LG",
+             "published_date": "2026-07-15"}
+    assert _resolve_footer({"card_type": "title"}, paper) == ""
+    assert _resolve_footer({"card_type": "source"}, paper) == ""
+    assert _resolve_footer({"card_type": "finding"}, paper) == \
+        "arXiv · Machine Learning · July 15, 2026"
+
+
+def test_resolve_footer_falls_back_to_authored_when_no_paper():
+    from templates.render import _resolve_footer
+    assert _resolve_footer({"card_type": "finding", "footer": "authored"}, None) == "authored"
+
+
 def test_render_raises_when_no_cards_match_start_index(tmp_path):
     # If start_index skips every card (or carousel_cards is empty), the render must
     # raise rather than return [] with exit 0 — an empty render otherwise flows into

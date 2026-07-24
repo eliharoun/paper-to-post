@@ -54,7 +54,8 @@ def check_schema(post_dict: dict, brand: BrandConfig) -> tuple[list[str], Genera
 def check_lengths(post: GeneratedPost, brand: BrandConfig) -> list[str]:
     errors: list[str] = []
     for card in post.carousel_cards:
-        if len(card.heading) > 70:
+        # Source cards carry the full paper title verbatim; exempt from heading cap.
+        if card.card_type != "source" and len(card.heading) > 70:
             errors.append(f"card {card.card_number} heading too long ({len(card.heading)}>70)")
         if len(card.body) > 280:
             errors.append(f"card {card.card_number} body too long ({len(card.body)}>280)")

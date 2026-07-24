@@ -38,19 +38,26 @@ def _inlined_css() -> str:
     return css
 
 
+# Card types that carry no auto-generated footer: the opening title/hero card and
+# the closing source card. Everything between them (card 2 .. second-to-last of the
+# authored deck) gets the deterministic 'Source · Category · Date' line. The paper
+# first-page screenshot is inserted at bundle time between these and the source
+# card, and is not an authored card, so it is unaffected either way.
+_NO_FOOTER_CARD_TYPES = {"title", "source"}
+
+
 def _resolve_footer(card: dict, paper: dict | None) -> str:
     """Deterministic footer, computed from the paper (not the authored JSON).
 
     When `paper` is provided, the footer is fully controlled here so it never
-    varies with what the language model wrote: the title/hero card gets no
-    footer, and every other card shows 'Source · Month D, YYYY' from the paper.
-    The paper first-page screenshot is inserted at bundle time and is not an
-    authored card, so it is unaffected. When no paper is given (e.g. a bare unit
-    test), fall back to the authored `footer` for backward compatibility.
+    varies with what the language model wrote: the title/hero and source cards
+    get no footer, and every card between them shows
+    'Source · Category · Month D, YYYY' from the paper. When no paper is given
+    (e.g. a bare unit test), fall back to the authored `footer`.
     """
     if paper is None:
         return card.get("footer", "")
-    if card["card_type"] == "title":
+    if card["card_type"] in _NO_FOOTER_CARD_TYPES:
         return ""
     return card_footer_line(paper)
 

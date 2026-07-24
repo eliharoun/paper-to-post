@@ -77,7 +77,7 @@ Vary the questions per paper — don't mechanically reuse the same seven every t
 
 ## Card footers are auto-generated — leave them empty
 
-**You do not write the `footer` field. Set every card's `footer` to `""`.** At render time the pipeline fills footers deterministically from the paper: the title/hero card gets **no** footer, and every other card shows `Source · Month D, YYYY` (the paper's source/venue and full publication date, e.g. "arXiv · July 15, 2026"). This is computed from `selected_paper.json`, not from anything you type, so a footer you author is ignored and overwritten. Spend zero effort on footers; just leave them as empty strings (the schema still requires the field to be present).
+**You do not write the `footer` field. Set every card's `footer` to `""`.** At render time the pipeline fills footers deterministically from the paper: the title/hero card and the closing source card get **no** footer, and every content card between them shows `Source · Category · Month D, YYYY` (the paper's source/venue, its research category, and full publication date, e.g. "arXiv · Machine Learning · July 15, 2026"). This is computed from `selected_paper.json`, not from anything you type, so a footer you author is ignored and overwritten. Spend zero effort on footers; just leave them as empty strings (the schema still requires the field to be present).
 
 ## Card sequence (7 cards)
 

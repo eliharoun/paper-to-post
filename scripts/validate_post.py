@@ -6,6 +6,7 @@ import argparse
 import json
 
 from scripts.lib.config import load_topics, resolve_brand
+from scripts.lib.sourceline import unwrap_paper
 from scripts.lib.validation import validate_post
 
 
@@ -35,6 +36,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.paper:
         with open(args.paper) as f:
             paper = json.load(f)
+        # selected_paper.json wraps paper metadata under a "paper" key; unwrap it
+        # so that check_grounding/check_health can access title/url/abstract directly.
+        paper = unwrap_paper(paper)
 
     brand = resolve_brand(account=args.account, brand_path=args.brand)
     guarded = _requires_guardrails(paper, args.topics) if paper else False

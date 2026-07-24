@@ -146,6 +146,79 @@ it under `outputs/<date>/<account>/post<N>/`, pauses for you to approve each fro
 then delivers to **every channel in that topic's `publish` list** — an Instagram carousel,
 a LinkedIn post, and/or an email-newsletter digest.
 
+### End-to-end flow
+
+For every enabled topic the skill runs five phases — **A** gather → **B** select → **C**
+produce each post → **D** review & deliver → **E** report. Blue = a deterministic script
+step, yellow = your (the model's) judgment, red = a gate or decision, green = delivery.
+The hard **Validate** gate and the **Verify bundle** gate must pass before anything renders
+or ships; front cards pause for your approval before publishing.
+
+```mermaid
+graph TD
+    Start([Operator: run the daily research posts]) --> Cfg[Read config<br/>topics, sources, channels,<br/>max_posts, hashtag bank]
+    Cfg --> Topic{{For each enabled topic}}
+
+    Topic --> Gather[A. Gather<br/>research-gather: fetch sources,<br/>dedupe, drop delivered, filter]
+    Gather --> Empty{Any candidates?}
+    Empty -->|no| Skip[Skip topic<br/>write SKIPPED.txt]
+    Empty -->|yes| Select[B. Select top N<br/>1: score abstracts, shortlist<br/>2: read full text, re-rank]
+    Select --> Bar{N clear the<br/>quality bar?}
+    Bar -->|none| Skip
+    Bar -->|yes, best N| PerPost[[C. Per-post pipeline<br/>one subagent per post]]
+
+    subgraph Post [For each selected post]
+        Read[1. Read full paper] --> WriteCard[2. Write post.json<br/>headline, cards, caption,<br/>share_cta, hero prompt]
+        WriteCard --> Critique[2f. Self-critique + fix]
+        Critique --> Validate{3. Validate<br/>HARD GATE}
+        Validate -->|exit 1| Fix[Fix JSON, retry up to 3x]
+        Fix --> Validate
+        Validate -->|fails 3x| Drop[Drop paper,<br/>promote next candidate]
+        Validate -->|exit 0| Shot[4. Screenshot paper page]
+        Shot --> Hero{Hero image<br/>research-hero}
+        Hero -->|ok| RenderH[Render cards from 2<br/>hero front card]
+        Hero -->|fail / no key| RenderM[Render all cards<br/>motif front card]
+        RenderH --> Bundle[5. Bundle<br/>cards + caption + ledger]
+        RenderM --> Bundle
+        Bundle --> Verify{6. Verify bundle}
+        Verify -->|exit 1| Redispatch[Re-run failed step]
+        Redispatch --> Verify
+        Verify -->|exit 0| Done[Post ready]
+    end
+
+    PerPost --> Post
+    Done --> AllDone{All posts<br/>produced?}
+    AllDone -->|no| PerPost
+    AllDone -->|yes| Reverify[D. Parent re-verifies<br/>all bundles + grid preview]
+    Reverify --> ReviewGate{Front-card<br/>review gate}
+    ReviewGate -->|regenerate / reject| WriteCard
+    ReviewGate -->|approve| Publish[Publish to each channel<br/>Instagram / LinkedIn / Newsletter<br/>one command per post, idempotent]
+    Publish --> Report[E. Report<br/>titles, hero/motif, permalinks]
+    Skip --> Report
+    Report --> Finish([Done])
+
+    subgraph Legend [Legend]
+        L1[Script step]
+        L2[Your judgment]
+        L3{Gate / decision}
+        L4[Delivery]
+    end
+
+    classDef startEnd fill:#1e293b,stroke:#0f172a,color:#f8fafc,font-weight:bold
+    classDef script fill:#dbeafe,stroke:#2563eb,color:#0b1220
+    classDef judgment fill:#fef9c3,stroke:#ca8a04,color:#1c1917
+    classDef gate fill:#fee2e2,stroke:#dc2626,color:#7f1d1d,font-weight:bold
+    classDef deliver fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef skip fill:#f1f5f9,stroke:#94a3b8,color:#334155
+
+    class Start,Finish startEnd
+    class Gather,Read,Shot,RenderH,RenderM,Bundle,Reverify,Publish,L1 script
+    class Select,WriteCard,Critique,Fix,Drop,L2 judgment
+    class Validate,Verify,Hero,ReviewGate,Empty,Bar,AllDone,L3 gate
+    class Report,Done,L4 deliver
+    class Skip skip
+```
+
 ## Pipeline
 
 | Stage | Command | What it does |
